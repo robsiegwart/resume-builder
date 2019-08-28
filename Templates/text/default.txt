@@ -1,0 +1,66 @@
+{{ context.header.name    }}
+
+{{ context.header.address }}
+{{ context.header.cell    }}
+{{ context.header.email   }}
+{{ context.header.web     }}
+
+
+Qualifications Summary
+----------------------
+{{ context.performance_profile['Performance profile'] }}
+
+Skills
+------
+{% for k,v in context.skills.Skills.items() %}
+{{ k|capitalize }}
+{% for skill in v  %}
+    - {{ skill }}
+{% endfor %}
+
+{% endfor %}
+Experience
+----------
+{% for company, details in context.experience.Experience.items() %}
+{{ company }} -- {{ details.location }}
+  {% for position, dates in details.positions.items() %}
+  {{ position.title }} / {{ dates.dates }}
+  {% endfor %}
+  {% if details.summary is defined %}
+  {{ details.summary|wordwrap }}
+  {% endif %}
+  {% if details['selected achievements'] is defined %}
+    {% for each in details['selected achievements'] %}
+  - {{ each }}
+    {% endfor %}
+  {% endif %}
+
+{% endfor %}
+
+Education
+---------
+{{ context.education.Education.degree }}, {{ context.education.Education.date }}
+  {{ context.education.Education.school }} -- {{ context.education.Education.address }}
+
+
+Certifications
+--------------
+{% for cert, details in context.certifications.Certifications.items() %}
+{{ cert }}
+  License no: {{ details['license number'] }}, Expiration: {{ details.expiration }}
+{% endfor %}
+
+
+Training
+--------
+{% for training, details in context.training.Training.items() %}
+{{ training }}
+  {{ details.description }}
+{% endfor %}
+
+
+Patents
+-------
+{% for patent, details in context.patents.Patents.items() %}
+{{ patent }}," Patent number: {{ details['patent number'] }}, Issued: {{ details.issued }}.
+{% endfor %}
