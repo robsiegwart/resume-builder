@@ -96,7 +96,7 @@ def build_resume(output_file, source_dir='default', html_template='default',
     cats = len(context.get('skills').get('Skills').keys())       # number of skill categories
     if cats > skills_col:
         if not skills_layout:
-            skills_layout = []                      # category labels for each column (ordered left to right)
+            skills_layout = []                                   # category labels for each column (ordered left to right)
             skills = OrderedDict(sorted(context['skills']['Skills'].items(), key = lambda t: len(t[1]), reverse=True))  # sort by num of skills
             b = 1
             for i,cat in enumerate(skills.keys()):

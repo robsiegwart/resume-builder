@@ -1,60 +1,132 @@
 # Resume Generator
 
-## Requirements.txt
-```
-Jinja2==2.10
-MarkupSafe==1.1.0
-pdfkit==0.6.1
-PyYAML==3.13
-```
+A Python program to construct a resume based on data stored in YAML files.
 
-## File Structure
-```
- - resume.py
- - Publish\
-     |- (publish 1)\
-     |- (publish 2)\
- - python_env\
- - Resume Data\
-     |- Default\
-     |- (resume 1)\
-     |- (resume 2)\
- - Resume1.py
-```
+The motivation is to separate data from presentation in order to more quickly generate different forms of a resume based on the desired data to be included. Additionally, different templates can be used in order to create differently formatted versions of a resume from the same set of data.
 
-## Resume1.py
-```
-from resume import build
+## Usage
 
-options = {
-    template = '',
-    source_dir = ''
-}
+### File Structure
 
-build(name[, options])      # options default to 'default' 
-```
+       resume.py                           (program)
+       [Resume.py]                         (run file)
+    +- Publish                             (output directory)
+         +- [publish directories]
+         +- ...
+    +- Resume Data                         (resume data files)
+         +- Default
+         +- ...                            (additional data directories)
 
-## Run
-    python Resume1.py
+### Resume Data
 
-## Resume Data
+Data is stored in YAML files within a directory in the `Resume Data` directory. A `Default` directory must exist, which serves as the base set of data. Additional directories are then added which overide the data of Default. Only data that changes needs included in these directories.
+
 Templates currently use the following files and properties:
 
-### Header.yaml
- - name
- - address
- - cell
- - email
- - web   
- - title
+#### Certifications.yaml
 
+    Certifications :
+      <Cert> :
+        <property>: <value>
+        <property>: <value>
 
-### Performance profile.yaml
- - (string)
+#### Education.yaml
 
-### Skills.yaml
- category : 
-    - list of skills ...
+    Education:
+      degree : <degree>
+      school : <name>
+      date: <date>
+      address: <address>
 
-### Experience
- 
+#### Experience.yaml
+
+    Experience :
+      <company 1 name> :
+        location: <location>
+        positions :
+          <position name> :
+            dates : <dates>
+          <position name> :
+            dates : <dates>
+        summary : >
+          <summary paragraph>
+        selected achievements :
+          - <item>
+          - <item>
+          - ...
+      <company 2 name> :
+        location : <location>
+        positions :
+          <position name> :
+            dates : <dates>
+        summary : >
+          <summary paragraph>
+
+#### Header.yaml
+
+    name     : <name>
+    title    : <title>
+    contact info :
+        address : <value>
+        cell    : <value>
+        email   : <value>
+        web     : <value>
+
+#### Patents.yaml
+
+    Patents :
+      <Patent name> :
+        patent number : <number>
+        issued : <date>
+        description : <value>
+
+#### Performance profile.yaml
+
+    Performance profile : >
+        <paragraph>
+
+#### Skills.yaml
+
+    Skills :
+      <category header> :
+        - <skill>
+        - <skill>
+        - <skill>
+      <category header> :
+        - <skill>
+        - <skill>
+
+#### Training.yaml
+
+    Training :
+      <title>:
+        description : <description>
+      <title>:
+        description : <description>
+
+## Installation
+
+### 3rd Party Applications
+
+`wkhtmltopdf` (wkhtmltopdf.org)
+
+### Python Packages
+
+- Jinja2
+- pdfkit
+- PyYAML
+
+## Example
+
+### Resume Data
+
+### Build File
+
+    from resume import build
+    
+    options = {
+        template = '',
+        source_dir = ''
+    }
+    
+    build(name[, options])      # options default to 'default'
