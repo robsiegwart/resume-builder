@@ -1,30 +1,34 @@
-{{ context.header.name    }}
+{{ context.Header.name    }}
 
-{{ context.header.address }}
-{{ context.header.cell    }}
-{{ context.header.email   }}
-{{ context.header.web     }}
+{{ context.Header['contact info'].address }}
+{{ context.Header['contact info'].cell    }}
+{{ context.Header['contact info'].email   }}
+{{ context.Header['contact info'].web     }}
 
 
 Qualifications Summary
 ----------------------
-{{ context.performance_profile['Performance profile'] }}
+{{ context.Performance_profile }}
+
 
 Skills
 ------
-{% for k,v in context.skills.Skills.items() %}
+{% for k,v in context.Skills.items() %}
 {{ k|capitalize }}
-{% for skill in v  %}
+{% for skill in v %}
     - {{ skill }}
 {% endfor %}
-
 {% endfor %}
+
+
 Experience
 ----------
-{% for company, details in context.experience.Experience.items() %}
+{% for company, details in context.Experience.items() %}
 {{ company }} -- {{ details.location }}
-  {% for position, dates in details.positions.items() %}
-  {{ position.title }} / {{ dates.dates }}
+
+  {% for position, pos_details in details.positions.items() %}
+  {{ position }} / {{ pos_details.dates }}
+  
   {% endfor %}
   {% if details.summary is defined %}
   {{ details.summary|wordwrap }}
@@ -33,19 +37,22 @@ Experience
     {% for each in details['selected achievements'] %}
   - {{ each }}
     {% endfor %}
-  {% endif %}
 
+  {% endif %}
 {% endfor %}
+
 
 Education
 ---------
-{{ context.education.Education.degree }}, {{ context.education.Education.date }}
-  {{ context.education.Education.school }} -- {{ context.education.Education.address }}
+{% for degree, details in context.Education.items() %}
+{{ degree }}, {{ details.date }}
+  {{ details.school }} -- {{ details.address }}
+{% endfor %}
 
 
 Certifications
 --------------
-{% for cert, details in context.certifications.Certifications.items() %}
+{% for cert, details in context.Certifications.items() %}
 {{ cert }}
   License no: {{ details['license number'] }}, Expiration: {{ details.expiration }}
 {% endfor %}
@@ -53,7 +60,7 @@ Certifications
 
 Training
 --------
-{% for training, details in context.training.Training.items() %}
+{% for training, details in context.Training.items() %}
 {{ training }}
   {{ details.description }}
 {% endfor %}
@@ -61,6 +68,6 @@ Training
 
 Patents
 -------
-{% for patent, details in context.patents.Patents.items() %}
+{% for patent, details in context.Patents.items() %}
 {{ patent }}," Patent number: {{ details['patent number'] }}, Issued: {{ details.issued }}.
 {% endfor %}

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{{ context.header.name }}</title>
+    <title>{{ context.Header.name }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="all" href="{{ context.TEMPLATE_DIR_REL }}\html\css\bootstrap.min.css" />
     <style>
@@ -47,9 +47,9 @@
 </head>
 <body>
     <header>
-        <h1 class="name">{{ context.header.name }}</h1>
+        <h1 class="name">{{ context.Header.name }}</h1>
         <div class="header_info">
-            {% for item,value in context.header['contact info'].items() %}
+            {% for item,value in context.Header['contact info'].items() %}
                 {% if item == 'address' %}
                     {{ value }}
                 {% else %}
@@ -63,12 +63,12 @@
     </header>
     <hr>
     <main>
-        {% if context.title %}<p class="title">{{ context.header.title }}</p>{% endif %}
+        {% if context.title %}<p class="title">{{ context.Header.title }}</p>{% endif %}
         
         <table class="performance_profile">
             <tr>
                 <td><h2 id="performance_profile">Performance Profile</h2></td>
-                <td>{{ context.performance_profile['Performance profile'] }}</td>
+                <td>{{ context.Performance_profile }}</td>
             </tr>
         </table>
 
@@ -82,7 +82,7 @@
                         {% for item in column %}
                         <p class="skills_category_heading {% if loop.index > 1 %}inner_title{% endif %}">{{ item }}</p>
                         <ul>
-                            {% for v in context.skills.Skills[item] %}
+                            {% for v in context.Skills[item] %}
                             <li>{{ v }}</li>
                             {% endfor %}
                         </ul>
@@ -91,7 +91,7 @@
                     {% endfor %}
 
                 {% else %}
-                    {% for k,v in context.skills.Skills.items() %}
+                    {% for k,v in context.Skills.items() %}
                     <td>
                         <p class="skills_category_heading">{{ k }}</p>
                         <ul>
@@ -109,7 +109,7 @@
             <tr>
                 <td><h2 id="experience">Experience</h2></td>
                 <td>
-                    {% for company, details in context.experience.Experience.items() %}
+                    {% for company, details in context.Experience.items() %}
                     <div {% if not loop.last%}class="exp_row"{% endif %}>
                         <div class="company_line"><span>{{ company }}</span> &mdash; {{ details.location }}</div>
                         <div class="positions">
@@ -138,10 +138,13 @@
         <table class="education single">
             <tr>
                 <td><h2 id="education">Education</h2></td>
+                {% for degree, details in context.Education.items() %}
                 <td>
-                    <p class="bold">{{ context.education.Education.degree }}, {{ context.education.Education.date }}</p>
-                    <p>{{ context.education.Education.school }} &mdash; {{ context.education.Education.address }}</p>
+                    <p class="bold">{{ degree }}, {{ details.date }}</p>
+                    <p>{{ details.school }} &mdash; {{ details.address }}</p>
+                    {% if details.gpa is defined %}GPA: {{ details.gpa }}{% endif %}
                 </td>
+                {% endfor %}
             </tr>
         </table>
 
@@ -149,7 +152,7 @@
             <tr>
                 <td><h2 id="certifications">Certifications</h2></td>
                 <td>
-                    {% for cert, details in context.certifications.Certifications.items() %}
+                    {% for cert, details in context.Certifications.items() %}
                     <p class="bold">{{ cert }}</p>
                     <p>License no: {{ details['license number'] }}, Expiration: {{ details.expiration }}</p>
                     {% endfor %}
@@ -161,7 +164,7 @@
             <tr>
                 <td><h2 id="training">Training</h2></td>
                 <td>
-                    {% for training, details in context.training.Training.items() %}
+                    {% for training, details in context.Training.items() %}
                     <p class="bold">{{ training }}</p>
                     <p>{{ details.description }}</p>
                     {% endfor %}
@@ -173,7 +176,7 @@
             <tr>
                 <td><h2 id="patents">Patents</h2></td>
                 <td>
-                    {% for patent, details in context.patents.Patents.items() %}
+                    {% for patent, details in context.Patents.items() %}
                     <p><span class="bold">"{{ patent }},"</span> Patent number: {{ details['patent number'] }}, Issued: {{ details.issued }}.</p>
                     {% endfor %}
                 </td>
