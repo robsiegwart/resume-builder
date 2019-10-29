@@ -12,15 +12,12 @@ Tailoring of a resume can be accomplished by creating a new folder with only tho
 
        resume.py
        config.ini                   <- configuration file
-       
     +- Publish/                     <- output directory
        +- [publish directories]
        +- ...
-
     +- Resume Data                  <- resume data files
        +- Default/
        +- ...
-
     +- Templates/                   <- templates directory
        +- html/
           default.html              <- Default HTML template
