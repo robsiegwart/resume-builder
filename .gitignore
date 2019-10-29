@@ -1,4 +1,4 @@
-# Project specific
+# Project
 Resume Data/
 docs/
 Publish/
@@ -6,8 +6,7 @@ Python envs/
 temp/
 *.bat
 
-
-# General python
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
