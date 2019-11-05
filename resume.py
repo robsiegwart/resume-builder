@@ -19,50 +19,56 @@ def cli():
     pass
 
 
-def load_config():
-    Config = configparser.ConfigParser(defaults={ 'TEMPLATES_DIR': 'Templates',
-                                                  'SOURCES_DIR': 'Resume Data',
-                                                  'PUBLISH_DIR': 'Publish',
-                                                  'PDF_DISABLE_EXTERNAL_LINKS': False })
+def load_config(source_dir):
+    GlobalConfig = configparser.ConfigParser(defaults={ 'TEMPLATES_DIR': 'Templates',
+                                                        'SOURCES_DIR': 'Resume Data',
+                                                        'PUBLISH_DIR': 'Publish' })
+    GlobalConfig.read('config.ini')
+    SOURCES_DIR = GlobalConfig.get('DEFAULT','SOURCES_DIR')
 
-    Config.read('config.ini')
+    LocalConfig = configparser.ConfigParser(defaults = { 'HTML_TEMPLATE': 'default',
+                                                         'TEXT_TEMPLATE': 'default',
+                                                         'PDF_MARGIN_TOP': '0.5in',
+                                                         'PDF_MARGIN_RIGHT': '0.5in',
+                                                         'PDF_MARGIN_BOTTOM': '0.5in',
+                                                         'PDF_MARGIN_LEFT': '0.5in',
+                                                         'PDF_PAGE_SIZE': 'Letter' })
+    LocalConfig.read(os.path.join(SOURCES_DIR,source_dir,'config.ini'))
     
     # set any properties that should be parsed with other than just get()
-    dtypes = { 'PDF_DISABLE_EXTERNAL_LINKS': Config.getboolean }
+    dtypes = { 'PDF_DISABLE_EXTERNAL_LINKS': lambda x: x.getboolean }
 
     CONFIG = {}
-
-    for key in Config['DEFAULT']:
-        keyu = key.upper()
-        if keyu in dtypes.keys():
-            CONFIG[keyu] = dtypes[keyu]('DEFAULT', key)
-        else:
-            CONFIG[keyu] = Config.get('DEFAULT', key)
+    
+    for config in [GlobalConfig,LocalConfig]:
+        for key in config['DEFAULT']:
+            keyu = key.upper()
+            if keyu in dtypes.keys():
+                CONFIG[keyu] = dtypes[keyu](config)('DEFAULT', key)
+            else:
+                CONFIG[keyu] = config.get('DEFAULT', key)
 
     CONFIG['PDF_OPTIONS'] = { 'margin-top': CONFIG['PDF_MARGIN_TOP'],
                               'margin-right': CONFIG['PDF_MARGIN_RIGHT'],
                               'margin-bottom': CONFIG['PDF_MARGIN_BOTTOM'],
                               'margin-left': CONFIG['PDF_MARGIN_LEFT'],
-                              'disable-external-links': CONFIG['PDF_DISABLE_EXTERNAL_LINKS'] }
+                              'disable-external-links': False }
     
     return CONFIG
 
 
 @click.command()
 @click.argument('source_dir')
-@click.option('--html_template', default='default', help="Template to use for HTML rendering.")
-@click.option('--text_template', default='default', help="Template name to use for text rendering.")
-@click.option('--title', default=False, is_flag=True, help="Toggle title on/off.")
-def build(source_dir, html_template, text_template, title):
+def build(source_dir):
     '''
         Generate HTML, PDF, and text versions of a resume and save them in a
         directory.
 
         SOURCE_DIR is the name of a folder in the 'Resume Data' folder.
     '''
-    context = { 'title': title }
+    CONFIG = load_config(source_dir)
 
-    CONFIG = load_config()
+    context = { 'title': True } if CONFIG.get('TITLE') else { 'title': False }
 
     # Create a new directory to put files in (autorename to avoid overwriting)
     new_folder = source_dir + ' - ' + datetime.today().strftime('%d%b-%Y')
@@ -108,8 +114,8 @@ def build(source_dir, html_template, text_template, title):
         else:
             return env.get_template(selection+'.'+type)
     
-    html_template = load_template('html', html_template)
-    text_template = load_template('txt', text_template)
+    html_template = load_template('html', CONFIG.get('HTML_TEMPLATE'))
+    text_template = load_template('txt', CONFIG.get('TEXT_TEMPLATE'))
     
     # Layout the skills section if configured to do so
     if CONFIG.get('SKILLS_LAYOUT'):

@@ -63,15 +63,18 @@
     </header>
     <hr>
     <main>
-        {% if context.title %}<p class="title">{{ context.Header.title }}</p>{% endif %}
+        {% if context.title is sameas true %}<p class="title">{{ context.Header.title }}</p>{% endif %}
         
+        {% if context.Performance_profile is defined %}
         <table class="performance_profile">
             <tr>
                 <td><h2 id="performance_profile">Performance Profile</h2></td>
                 <td>{{ context.Performance_profile }}</td>
             </tr>
         </table>
+        {% endif %}
 
+        {% if context.Skills is defined %}
         <table class="skills">
             <tr>
                 <td><h2 id="skills">Skills and Capabilities</h2></td>
@@ -104,7 +107,9 @@
                 {% endif %}
             </tr>
         </table>
+        {% endif %}
 
+        {% if context.Experience is defined %}
         <table class="experience">
             <tr>
                 <td><h2 id="experience">Experience</h2></td>
@@ -134,7 +139,9 @@
                 </td>
             </tr>
         </table>
+        {% endif %}
 
+        {% if context.Education is defined %}
         <table class="education single">
             <tr>
                 <td><h2 id="education">Education</h2></td>
@@ -147,7 +154,9 @@
                 {% endfor %}
             </tr>
         </table>
+        {% endif %}
 
+        {% if context.Certifications is defined %}
         <table class="certifications single">
             <tr>
                 <td><h2 id="certifications">Certifications</h2></td>
@@ -159,7 +168,9 @@
                 </td>
             </tr>
         </table>
+        {% endif %}
 
+        {% if context.Training is defined %}
         <table class="training single">
             <tr>
                 <td><h2 id="training">Training</h2></td>
@@ -171,7 +182,9 @@
                 </td>
             </tr>
         </table>
+        {% endif %}
 
+        {% if context.Patents is defined %}
         <table class="patents single">
             <tr>
                 <td><h2 id="patents">Patents</h2></td>
@@ -182,6 +195,7 @@
                 </td>
             </tr>
         </table>
+        {% endif %}
     </main>
 </body>
 </html>

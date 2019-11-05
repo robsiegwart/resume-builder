@@ -1,16 +1,22 @@
 {{ context.Header.name    }}
 
+{% if context.title is sameas true %}
+{{ context.Header.title }}
+{% endif %}
+
 {{ context.Header['contact info'].address }}
 {{ context.Header['contact info'].cell    }}
 {{ context.Header['contact info'].email   }}
 {{ context.Header['contact info'].web     }}
 
 
+{% if context.Performance_profile is defined %}
 Qualifications Summary
 ----------------------
 {{ context.Performance_profile }}
+{% endif %}
 
-
+{% if context.Skills is defined %}
 Skills
 ------
 {% for k,v in context.Skills.items() %}
@@ -19,8 +25,9 @@ Skills
     - {{ skill }}
 {% endfor %}
 {% endfor %}
+{% endif %}
 
-
+{% if context.Experience is defined %}
 Experience
 ----------
 {% for company, details in context.Experience.items() %}
@@ -40,34 +47,39 @@ Experience
 
   {% endif %}
 {% endfor %}
+{% endif %}
 
-
+{% if context.Education is defined %}
 Education
 ---------
 {% for degree, details in context.Education.items() %}
 {{ degree }}, {{ details.date }}
   {{ details.school }} -- {{ details.address }}
 {% endfor %}
+{% endif %}
 
-
+{% if context.Certifications is defined %}
 Certifications
 --------------
 {% for cert, details in context.Certifications.items() %}
 {{ cert }}
   License no: {{ details['license number'] }}, Expiration: {{ details.expiration }}
 {% endfor %}
+{% endif %}
 
-
+{% if context.Training is defined %}
 Training
 --------
 {% for training, details in context.Training.items() %}
 {{ training }}
   {{ details.description }}
 {% endfor %}
+{% endif %}
 
-
+{% if context.Patents is defined %}
 Patents
 -------
 {% for patent, details in context.Patents.items() %}
 {{ patent }}," Patent number: {{ details['patent number'] }}, Issued: {{ details.issued }}.
 {% endfor %}
+{% endif %}
