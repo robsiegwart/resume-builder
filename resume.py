@@ -117,8 +117,6 @@ def build(source_dir, html_template, text_template, title):
 
         context['skills_layout'] = sl
 
-    print(context['skills_layout'])
-
     # HTML
     html = html_template.render(context=context)
     save_file(html,output_file+'.html')
