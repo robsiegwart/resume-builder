@@ -15,8 +15,8 @@ Tailoring of a resume can be accomplished by creating a new folder with only tho
     +- Publish/                     <- output directory
        +- [publish directories]
        +- ...
-    +- Resume Data                  <- resume data files
-       +- Default/
+    +- Resume Data                  <- resume data files, SOURCE_DIR arg is the
+       +- Default/                     name of a folder here
        +- ...
     +- Templates/                   <- templates directory
        +- html/
@@ -34,6 +34,8 @@ Usage: resume.py build [OPTIONS] SOURCE_DIR
 
   Generate html, pdf, and text versions of a resume and save them in a
   directory.
+
+  SOURCE_DIR is the name of a folder in the 'Resume Data' folder.
 
 Options:
   --html_template TEXT  Template to use for HTML rendering.

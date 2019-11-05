@@ -55,8 +55,10 @@ def load_config():
 @click.option('--title', default=False, is_flag=True, help="Toggle title on/off.")
 def build(source_dir, html_template, text_template, title):
     '''
-        Generate html, pdf, and text versions of a resume and save them in a
+        Generate HTML, PDF, and text versions of a resume and save them in a
         directory.
+
+        SOURCE_DIR is the name of a folder in the 'Resume Data' folder.
     '''
     context = { 'title': title }
 
