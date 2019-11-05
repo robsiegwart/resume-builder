@@ -10,26 +10,24 @@ A default set of resume data is stored in a Default directory. Tailoring of a re
 
 ### File Structure
 
-        resume.py
-        config.ini                   <- Global configuration file
-    +-- Publish/                     <- Defaultoutput directory
-        +-- [publish directories]
-        +-- ...
-    +-- Resume Data                  <- Default resume data files directory
-       +-- Default/                  
-           +-- Header.yaml
-           +-- Experience.yaml
-               ...
-           +-- config.ini            < Local configuration file
-    +-- Templates/                   <- Default templates directory
-       +- html/
-          default.html               <- Default HTML template
-          css/                       <- Include any css files
+    resume.py
+    config.ini                   (Global configuration file)
+    Publish/                     (Default output directory)
+    Resume Data/                 (Default resume data files directory)
+       Default/                  
+          Header.yaml
+          Experience.yaml
+           ...
+          config.ini             (Local configuration file)
+    Templates/                   (Default templates directory)
+       html/
+          default.html           (Default HTML template)
+          css/                   (Include any css files)
              style.css
              bootstrap.min.css
              ...
-       +- text/
-          default.txt                <- Default text template
+      text/
+         default.txt             (Default text template)
 
 ### Command Line Tool
 ```
