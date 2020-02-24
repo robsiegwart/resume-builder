@@ -52,6 +52,7 @@ def load_config(source_dir):
                               'margin-right': CONFIG['PDF_MARGIN_RIGHT'],
                               'margin-bottom': CONFIG['PDF_MARGIN_BOTTOM'],
                               'margin-left': CONFIG['PDF_MARGIN_LEFT'],
+                              'page-size': CONFIG['PDF_PAGE_SIZE'],
                               'disable-external-links': False }
     
     return CONFIG
@@ -59,7 +60,8 @@ def load_config(source_dir):
 
 @click.command()
 @click.argument('source_dir')
-def build(source_dir):
+@click.option('--name',default=None,help='Specify an alternate name for published files.')
+def build(source_dir,name):
     '''
         Generate HTML, PDF, and text versions of a resume and save them in a
         directory.
@@ -80,7 +82,12 @@ def build(source_dir):
     os.mkdir(os.path.join(CONFIG['PUBLISH_DIR'],new_folder))
     
     out_dir = os.path.join(CONFIG['PUBLISH_DIR'],new_folder)
-    output_file = os.path.join(out_dir,source_dir)
+    
+    if name:
+        output_file = os.path.join(out_dir,name)
+    else:
+        output_file = os.path.join(out_dir,source_dir)
+
     context['TEMPLATE_DIR_REL'] = os.path.relpath(CONFIG['TEMPLATES_DIR'],out_dir)
 
     # Load resume data into variable 'context'
@@ -128,23 +135,24 @@ def build(source_dir):
     # HTML
     html = html_template.render(context=context)
     save_file(html,output_file+'.html')
+    print('Saved HTML\n')
 
     # PDF
     pdf_in = output_file+'.html'
     pdf_out = output_file+'.pdf'
     pdfkit.from_file(pdf_in, pdf_out, options=CONFIG['PDF_OPTIONS'])
-    print('\nSaved file "{}"'.format(pdf_out))
+    print('\nSaved PDF\n')
 
     # TEXT
     text = text_template.render(context=context)
     save_file(text,output_file+'.txt')
+    print('Saved TXT\n')
 
 
 def save_file(content,output_file):
     ''' Write content 'content' to the file 'output_file. '''
     with open(output_file,'w') as ofile:
         ofile.write(content)
-    print('\nSaved file "{}"'.format(output_file))
 
 
 cli.add_command(build)
