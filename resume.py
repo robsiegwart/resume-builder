@@ -60,7 +60,7 @@ def load_config(source_dir):
 
 @click.command()
 @click.argument('source_dir')
-@click.option('--name',default=None,help='Specify an alternate name for published files.')
+@click.option('--name',default=None,help='Specify an alternate filename for published files. Default is source_dir.')
 def build(source_dir,name):
     '''
         Generate HTML, PDF, and text versions of a resume and save them in a

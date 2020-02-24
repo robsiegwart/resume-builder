@@ -30,16 +30,21 @@ A default set of resume data is stored in a Default directory. Tailoring of a re
          default.txt             (Default text template)
 
 ### Command Line Tool
+
+Only command available is `build`:
+
 ```
 Usage: resume.py build [OPTIONS] SOURCE_DIR
 
-  Generate html, pdf, and text versions of a resume and save them in a
+  Generate HTML, PDF, and text versions of a resume and save them in a
   directory.
 
   SOURCE_DIR is the name of a folder in the 'Resume Data' folder.
 
 Options:
-  --help                Show this message and exit.
+  --name TEXT  Specify an alternate filename for published files. Default is
+               source_dir.
+  --help       Show this message and exit.
 ```
 
 ### Resume Data
@@ -137,7 +142,7 @@ A `config.ini` file placed at the root of the project is used to specify alterna
 
 ### Local
 
-A `config.ini` file may be placed in a resume data directory with the following as valid settings (the pdf options are just those for `pdfkit`):
+A `config.ini` file may be placed in a resume data directory with any of the following as settings:
 
   - HTML_TEMPLATE
   - TEXT_TEMPLATE
