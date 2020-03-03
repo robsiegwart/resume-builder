@@ -65,11 +65,15 @@ def load_config(source_dir):
 @click.argument('source_dir')
 @click.option('--name', default=None, help='Specify an alternate filename for published files. Default is source_dir.')
 @click.option('--config', default='DEFAULT', help='Specify a config group within local config.ini')
-def build(source_dir, name, config):
+@click.option('--overwrite', default=False, help='Overwrite output files.', is_flag=True)
+def build(source_dir, name, config, overwrite):
     '''
         Generate HTML, PDF, and text versions of a resume and save them in a
         directory.
     '''
+
+    # SETUP
+    # =====
     CONFIG = load_config(source_dir)
     context = { 'title': True } if CONFIG.get(config,'TITLE') else { 'title': False }
     PUBLISH_DIR = CONFIG.get(config,'PUBLISH_DIR')
@@ -82,18 +86,32 @@ def build(source_dir, name, config):
     if not os.path.exists(PUBLISH_DIR):
         os.mkdir(PUBLISH_DIR)
 
-    # Create a new directory to put built resume files in
-    new_folder = source_dir + ' - ' + datetime.today().strftime('%d%b-%Y')
+    # Create a new directory or clear existing directory to put built resume files in
+    new_folder = source_dir + ' - ' + datetime.today().strftime('%b-%d-%Y')
     if os.path.exists(os.path.join(PUBLISH_DIR, new_folder)):
-        i = 1
-        while os.path.exists(os.path.join(PUBLISH_DIR, new_folder + ' ({})'.format(i))):
-            i += 1
-        new_folder = new_folder+' ({})'.format(i)
-    os.mkdir(os.path.join(PUBLISH_DIR, new_folder))
-    out_dir = os.path.join(PUBLISH_DIR, new_folder)
+        if not overwrite:
+            i = 1
+            while os.path.exists(os.path.join(PUBLISH_DIR, new_folder + ' ({})'.format(i))):
+                i += 1
+            new_folder = new_folder+' ({})'.format(i)
+            os.mkdir(os.path.join(PUBLISH_DIR, new_folder))
+        else:
+            out_files = glob(os.path.join(PUBLISH_DIR, new_folder,'*'))
+            try:
+                for file in out_files:
+                    os.remove(file)
+            except PermissionError as e:
+                print('\n',e,"\nPlease close the listed file.")
+                return
+    else:
+        os.mkdir(os.path.join(PUBLISH_DIR, new_folder))
     
+
+    out_dir = os.path.join(PUBLISH_DIR, new_folder)
     output_file = os.path.join(out_dir,name) if name else os.path.join(out_dir,source_dir)
 
+    # LOAD DATA AND BUILD RESUME
+    # ==========================
     # Load resume data into variable 'context'
     #  - only changed files are added to new directory
     #  - all other unchanged data will be loaded from 'default' directory
@@ -139,17 +157,27 @@ def build(source_dir, name, config):
 
         context['skills_layout'] = sl
 
+
+    # GENERATE AND SAVE FILES
+    # =======================
+
+    print('\n',' PyResume '.center(80,'*'), '\n')
+
+    print('Output files will be written to directory:\n   "{}"\n'.format(out_dir))
+    if overwrite:
+        print('Files will be overwritten.\n\n')
+
     # HTML
     # ----
     html = html_template.render(context=context)
-    save_file(html,output_file+'.html')
-    print('Saved HTML\n')
+    save_file(html,output_file + '.html')
+    print('Saved HTML file to "{}"'.format(output_file + '.html'))
 
     # PDF
     # ---
     print('Beginning PDF creation...')
-    pdf_in = output_file+'.html'
-    pdf_out = output_file+'.pdf'
+    pdf_in = output_file + '.html'
+    pdf_out = output_file + '.pdf'
     PDF_OPTIONS = {}
 
     for k,v in CONFIG.items(config):
@@ -158,13 +186,15 @@ def build(source_dir, name, config):
             PDF_OPTIONS[key] = v
     
     pdfkit.from_file(pdf_in, pdf_out, options=PDF_OPTIONS)
-    print('\nSaved PDF\n')
+    print('\nSaved PDF file to "{}"'.format(pdf_out))
 
     # TEXT
     # ----
     text = text_template.render(context=context)
-    save_file(text,output_file+'.txt')
-    print('Saved TXT\n')
+    save_file(text,output_file + '.txt')
+    print('Saved TXT file to "{}"'.format(output_file + '.txt'))
+
+    print('\n\n',' End '.center(80,'*'),'\n\n')
 
 
 def save_file(content,output_file):
