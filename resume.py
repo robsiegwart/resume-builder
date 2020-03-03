@@ -77,7 +77,7 @@ def build(source_dir, name, config):
     if not os.path.exists(os.path.join(CONFIG.get(config, 'SOURCES_DIR'), source_dir)):
         print('Source directory "{}" does not exist.'.format(source_dir))
         return
-
+    
     # Create publish directory if it does not already exist
     if not os.path.exists(PUBLISH_DIR):
         os.mkdir(PUBLISH_DIR)
@@ -132,7 +132,7 @@ def build(source_dir, name, config):
     text_template = load_template('txt', CONFIG.get(config, 'TEXT_TEMPLATE'))
     
     # Layout the skills section if configured to do so
-    if CONFIG.get('DEFAULT','SKILLS_LAYOUT'):
+    if CONFIG.get(config,'SKILLS_LAYOUT', fallback=None):
         sl = list(map(lambda x: x.split(','), CONFIG.get(config, 'SKILLS_LAYOUT').split('|')))
         for i,each in enumerate(sl):
             sl[i] = list(map(lambda x: x.strip(), each))
