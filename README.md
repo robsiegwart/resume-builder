@@ -4,14 +4,13 @@ A Python program to construct a resume based on data stored in YAML files.
 
 The motivation is to easily build different resumes based on modular data. This allows several forms of a resume to be generated at once (e.g. PDF, text, HTML), specifially when content needs to be tailored for a specific aim. Additionally, different templates can be used in order to create differently formatted versions of a resume from the same content (e.g. regular resume, CV-type resume).
 
-A default set of resume data is stored in a Default directory. Tailoring of a resume can be accomplished by creating a new folder with only those YAML files having changed content.
+A default set of resume data is stored in the `Default` directory. Tailoring of a resume can be accomplished by creating a new folder with only those YAML files having changed content.
 
 ## Usage
 
 ### File Structure
 
     resume.py
-    config.ini                   (Global configuration file)
     Publish/                     (Default output directory)
     Resume Data/                 (Default resume data files directory)
        Default/                  
@@ -31,27 +30,24 @@ A default set of resume data is stored in a Default directory. Tailoring of a re
 
 ### Command Line Tool
 
-Only command available is `build`:
-
 ```
-Usage: resume.py build [OPTIONS] SOURCE_DIR
+Usage: resume.py [OPTIONS] SOURCE_DIR
 
   Generate HTML, PDF, and text versions of a resume and save them in a
   directory.
 
-  SOURCE_DIR is the name of a folder in the 'Resume Data' folder.
-
 Options:
-  --name TEXT  Specify an alternate filename for published files. Default is
-               source_dir.
-  --help       Show this message and exit.
+  --name TEXT    Specify an alternate filename for published files. Default is
+                 source_dir.
+  --config TEXT  Specify a config group within local config.ini
+  --help         Show this message and exit.
 ```
 
 ### Resume Data
 
 Data is stored in YAML files within a directory in the `Resume Data` directory. A `Default` directory must exist, which serves as the base set of data. Additional directories are then added which overide the data of `Default`. Only data that changes needs included in these directories.
 
-A config.ini file may be placed in a resume data directory with options pertaining to PDF generation and template layout. This is considered a local config file. See details below.
+A config.ini file may be placed in a resume data directory with any options to override the default options. Options for wkhtmltopdf are the same with just `PDF_` prefixed. This is considered a local config file.
 
 Templates currently use the following files and properties:
 
@@ -133,23 +129,27 @@ Templates currently use the following files and properties:
 
 ### Global
 
-A `config.ini` file placed at the root of the project is used to specify alternate directories for resume data, the templates directory, and the publish directory. These are set with the following parameters:
+A `config.ini` file placed at the root of the project is used to specify alternate directories for resume data, the templates directory, and the publish directory. These are set with the following parameters and their defaults:
 
-  - SOURCES_DIR
-  - PUBLISH_DIR
-  - TEMPLATES_DIR
+  - TEMPLATES_DIR (Templates)
+  - SOURCES_DIR (Resume Data)
+  - PUBLISH_DIR (Publish)
+  - HTML_TEMPLATE (default)
+  - TEXT_TEMPLATE (default)
+  - PDF_MARGIN_TOP (0.5in)
+  - PDF_MARGIN_RIGHT (0.5in)
+  - PDF_MARGIN_BOTTOM (0.5in)
+  - PDF_MARGIN_LEFT (0.5in)
+  - PDF_PAGE_SIZE (Letter)
+  - PDF_DISABLE_EXTERNAL_LINKS ("")
+  - TITLE ("")
 
 
 ### Local
 
-A `config.ini` file may be placed in a resume data directory with any of the following as settings:
+A `config.ini` file may be placed in a resume data directory with any of the global settings or any from wkhtmltopdf. Remember for wkhtmltopdf settsings them must be prefixed with 'PDF_'. Additionally a SKILLS_LAYOUT setting can be used to layout the order of groups in the Skills section.
 
-  - HTML_TEMPLATE
-  - TEXT_TEMPLATE
-  - PDF_MARGIN_TOP
-  - PDF_MARGIN_BOTTOM
-  - PDF_MARGIN_LEFT
-  - PDF_MARGIN_RIGHT
+  - PDF_MARGIN_RIGHT, PDF_MARGIN_LEFT, ...
     * Set the margins in the pdf file; accepts a string with units (e.g. '0.75in')
   - PDF_PAGE_SIZE
     * 'Letter', 'A4', etc.
