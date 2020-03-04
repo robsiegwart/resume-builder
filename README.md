@@ -40,6 +40,7 @@ Options:
   --name TEXT    Specify an alternate filename for published files. Default is
                  source_dir.
   --config TEXT  Specify a config group within local config.ini
+  --overwrite    Overwrite output files.
   --help         Show this message and exit.
 ```
 
