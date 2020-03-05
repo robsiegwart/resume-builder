@@ -82,7 +82,7 @@ def build(source_dir, name, config, overwrite):
     PUBLISH_DIR = CONFIG.get(config,'PUBLISH_DIR')
 
     if not os.path.exists(os.path.join(CONFIG.get(config, 'SOURCES_DIR'), source_dir)):
-        print('Source directory "{}" does not exist.'.format(source_dir))
+        print(f'Source directory "{source_dir}" does not exist.')
         return
     
     # Create publish directory if it does not already exist
@@ -94,9 +94,9 @@ def build(source_dir, name, config, overwrite):
     if os.path.exists(os.path.join(PUBLISH_DIR, new_folder)):
         if not overwrite:
             i = 1
-            while os.path.exists(os.path.join(PUBLISH_DIR, new_folder + ' ({})'.format(i))):
+            while os.path.exists(os.path.join(PUBLISH_DIR, new_folder + f' ({i})')):
                 i += 1
-            new_folder = new_folder+' ({})'.format(i)
+            new_folder = new_folder + f' ({i})'
             os.mkdir(os.path.join(PUBLISH_DIR, new_folder))
         else:
             out_files = glob(os.path.join(PUBLISH_DIR, new_folder,'*'))
@@ -121,7 +121,7 @@ def build(source_dir, name, config, overwrite):
     
     context['TEMPLATE_DIR_REL'] = os.path.relpath(CONFIG.get(config,'TEMPLATES_DIR'),out_dir)
 
-    source_files = glob(CONFIG.get(config,'SOURCES_DIR') + '\\{}\\*.yaml'.format(source_dir))
+    source_files = glob(CONFIG.get(config,'SOURCES_DIR') + f'\\{source_dir}\\*.yaml')
     source_file_names = list(map(lambda f: os.path.basename(f), source_files))
     default_files = glob(CONFIG.get(config,'SOURCES_DIR') + '\\Default\\*.yaml')
 
@@ -160,7 +160,7 @@ def build(source_dir, name, config, overwrite):
 
     print('\n',' PyResume '.center(80,'='), '\n')
 
-    print('Output files will be written to directory:\n   "{}"\n'.format(out_dir))
+    print(f'Output files will be written to directory:\n   "{out_dir}"\n')
     if overwrite:
         print('Files will be overwritten.')
 
@@ -168,7 +168,7 @@ def build(source_dir, name, config, overwrite):
     # ----
     html = html_template.render(context=context)
     save_file(html,output_file + '.html')
-    print('Saved HTML file to "{}"'.format(output_file + '.html'))
+    print(f'Saved HTML file to "{output_file}.html"')
 
     # PDF
     # ---
@@ -194,7 +194,7 @@ def build(source_dir, name, config, overwrite):
         
         save = save_file(header, header_save_file)
         if save:
-            print('Using generated header file for PDF:\n    "{}".\n'.format(header_save_file))
+            print(f'Using generated header file for PDF:\n    "{header_save_file}".\n')
         
         PDF_OPTIONS['header-html'] = header_save_file
 
@@ -206,13 +206,13 @@ def build(source_dir, name, config, overwrite):
             PDF_OPTIONS[key] = v
     
     pdfkit.from_file(pdf_in, pdf_out, options=PDF_OPTIONS)
-    print('Saved PDF file to "{}"'.format(pdf_out))
+    print(f'Saved PDF file to "{pdf_out}"')
 
     # TEXT
     # ----
     text = text_template.render(context=context)
     save_file(text,output_file + '.txt')
-    print('Saved TXT file to "{}"'.format(output_file + '.txt'))
+    print(f'Saved TXT file to \"{output_file + ".txt"}\"')
 
     print('\n\n','End'.center(80),'\n\n')
 
