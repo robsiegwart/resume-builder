@@ -42,6 +42,9 @@ DEFAULT_CONFIG = {
         'SOURCES_DIR' :                'Resume Data',
         'PUBLISH_DIR' :                'Publish',
         'HTML_TEMPLATE' :              'default',
+        'HEADER':                      '',
+        'HEADER_DIR':                  'headers',
+        'HEADER_TEMPLATE':             'header_default',
         'TEXT_TEMPLATE' :              'default',
         'PDF_MARGIN_TOP' :             '0.5in',
         'PDF_MARGIN_RIGHT' :           '0.5in',
@@ -112,7 +115,7 @@ def build(source_dir, name, config, overwrite):
 
     # LOAD DATA AND BUILD RESUME
     # ==========================
-    # Load resume data into variable 'context'
+    #  - resume data goes into variable 'context'
     #  - only changed files are added to new directory
     #  - all other unchanged data will be loaded from 'default' directory
     
@@ -134,20 +137,14 @@ def build(source_dir, name, config, overwrite):
     # Setup Jinja templating
     env = Environment(
         loader=FileSystemLoader([ os.path.join(CONFIG.get(config,'TEMPLATES_DIR'), 'html'),
+                                  os.path.join(CONFIG.get(config,'TEMPLATES_DIR'), 'html', CONFIG.get(config, 'HEADER_DIR')),
                                   os.path.join(CONFIG.get(config,'TEMPLATES_DIR'), 'text') ]),
         autoescape=select_autoescape(['html']),
         trim_blocks=True
     )
     
-    # Load templates
-    def load_template(type,selection):
-        if not selection:
-            return env.get_template('default.' + type)
-        else:
-            return env.get_template(selection + '.' + type)
-    
-    html_template = load_template('html', CONFIG.get(config, 'HTML_TEMPLATE'))
-    text_template = load_template('txt', CONFIG.get(config, 'TEXT_TEMPLATE'))
+    html_template = env.get_template(CONFIG.get(config, 'HTML_TEMPLATE') + '.html')
+    text_template = env.get_template(CONFIG.get(config, 'TEXT_TEMPLATE') + '.txt')
     
     # Layout the skills section if configured to do so
     if CONFIG.get(config,'SKILLS_LAYOUT', fallback=None):
@@ -161,11 +158,11 @@ def build(source_dir, name, config, overwrite):
     # GENERATE AND SAVE FILES
     # =======================
 
-    print('\n',' PyResume '.center(80,'*'), '\n')
+    print('\n',' PyResume '.center(80,'='), '\n')
 
     print('Output files will be written to directory:\n   "{}"\n'.format(out_dir))
     if overwrite:
-        print('Files will be overwritten.\n\n')
+        print('Files will be overwritten.')
 
     # HTML
     # ----
@@ -175,18 +172,41 @@ def build(source_dir, name, config, overwrite):
 
     # PDF
     # ---
-    print('Beginning PDF creation...')
     pdf_in = output_file + '.html'
     pdf_out = output_file + '.pdf'
-    PDF_OPTIONS = {}
+    PDF_OPTIONS = { 'quiet':''}
+
+    # Header/footer configuration and directory setup
+    if CONFIG.get(config,'HEADER',fallback=None):
+        header_env = Environment(
+            loader=FileSystemLoader(
+                [ os.path.join(CONFIG.get(config,'TEMPLATES_DIR'), 'html', CONFIG.get(config, 'HEADER_DIR')) ]),
+            autoescape=select_autoescape(['html']),
+            trim_blocks=True
+        )
+
+        header_template = header_env.get_template(CONFIG.get(config,'HEADER_TEMPLATE') + '.html')
+        header = header_template.render({'name': context['Header']['name']})
+        
+        header_save_file = os.path.join(
+            out_dir,
+            CONFIG.get(config,'HEADER_TEMPLATE') + '.html')
+        
+        save = save_file(header, header_save_file)
+        if save:
+            print('Using generated header file for PDF:\n    "{}".\n'.format(header_save_file))
+        
+        PDF_OPTIONS['header-html'] = header_save_file
+
+
 
     for k,v in CONFIG.items(config):
-        if 'pdf' in k:
+        if k.startswith('pdf'):
             key = k.replace('pdf_', '').replace('_', '-')
             PDF_OPTIONS[key] = v
     
     pdfkit.from_file(pdf_in, pdf_out, options=PDF_OPTIONS)
-    print('\nSaved PDF file to "{}"'.format(pdf_out))
+    print('Saved PDF file to "{}"'.format(pdf_out))
 
     # TEXT
     # ----
@@ -194,13 +214,15 @@ def build(source_dir, name, config, overwrite):
     save_file(text,output_file + '.txt')
     print('Saved TXT file to "{}"'.format(output_file + '.txt'))
 
-    print('\n\n',' End '.center(80,'*'),'\n\n')
+    print('\n\n','End'.center(80),'\n\n')
 
 
 def save_file(content,output_file):
     ''' Write content 'content' to the file 'output_file. '''
     with open(output_file,'w') as ofile:
         ofile.write(content)
+    if os.path.exists(output_file):
+        return True
 
 
 if __name__ == '__main__':

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      function subst() {
+        var vars = {};
+        var qs = document.location.search.substring(1).split("&");
+        for (var i in qs) {
+          var z = qs[i].split("=", 2);
+          vars[z[0]] = decodeURI(z[1]);
+        }
+        var tags = [
+          "frompage",
+          "topage",
+          "page",
+          "webpage",
+          "section",
+          "subsection",
+          "subsubsection",
+          "title"
+        ];
+        for (var i in tags) {
+          var y = document.getElementsByClassName(tags[i]);
+          for (var j = 0; j < y.length; ++j) {
+            y[j].textContent = vars[tags[i]];
+          }
+
+          if (vars["page"] == 1) {
+            document.getElementById("FakeHeaders").style.display = "none";
+          }
+        }
+      }
+    </script>
+  </head>
+  <body style="padding: 0; margin: 0;" onload="subst()">
+    <table id="FakeHeaders" style="width: 100%;">
+      <tr>
+        <td class="title"></td>
+        <td style="text-align: right;">
+          Page <span class="page"></span> of <span class="topage"></span>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
