@@ -78,14 +78,26 @@ def build(source_dir, name, config, overwrite):
     # SETUP
     # =====
     CONFIG = load_config(source_dir)
-    context = { 'title': True } if CONFIG.get(config,'TITLE') else { 'title': False }
-    PUBLISH_DIR = CONFIG.get(config,'PUBLISH_DIR')
-
-    if not os.path.exists(os.path.join(CONFIG.get(config, 'SOURCES_DIR'), source_dir)):
-        print(f'Source directory "{source_dir}" does not exist.')
-        return
     
-    # Create publish directory if it does not already exist
+    PUBLISH_DIR = CONFIG.get(config,'PUBLISH_DIR')
+    SOURCE_DIR =    os.path.join(CONFIG.get(config, 'SOURCES_DIR'), source_dir)
+    TEMPLATES_DIR = os.path.join(CONFIG.get(config, 'TEMPLATES_DIR'))
+
+    # Check that required files/directories are present
+    for each in [ SOURCE_DIR,
+                  TEMPLATES_DIR,
+                  os.path.join(TEMPLATES_DIR, f'html\\{CONFIG.get(config,"HTML_TEMPLATE")}.html'),
+                  os.path.join(TEMPLATES_DIR, f'text\\{CONFIG.get(config,"TEXT_TEMPLATE")}.txt')  ]:
+        
+        if not os.path.exists(each):
+            print(f'File or directory "{each}" does not exist.')
+            return
+    
+    if not glob(os.path.join(SOURCE_DIR,'*.yaml')):
+        print('No source YAML files were found.')
+        return
+
+    # Create the publish directory if it does not already exist
     if not os.path.exists(PUBLISH_DIR):
         os.mkdir(PUBLISH_DIR)
 
@@ -118,7 +130,7 @@ def build(source_dir, name, config, overwrite):
     #  - resume data goes into variable 'context'
     #  - only changed files are added to new directory
     #  - all other unchanged data will be loaded from 'default' directory
-    
+    context = {'title': True} if CONFIG.get(config, 'TITLE') else {'title': False}
     context['TEMPLATE_DIR_REL'] = os.path.relpath(CONFIG.get(config,'TEMPLATES_DIR'),out_dir)
 
     source_files = glob(CONFIG.get(config,'SOURCES_DIR') + f'\\{source_dir}\\*.yaml')
@@ -137,7 +149,6 @@ def build(source_dir, name, config, overwrite):
     # Setup Jinja templating
     env = Environment(
         loader=FileSystemLoader([ os.path.join(CONFIG.get(config,'TEMPLATES_DIR'), 'html'),
-                                  os.path.join(CONFIG.get(config,'TEMPLATES_DIR'), 'html', CONFIG.get(config, 'HEADER_DIR')),
                                   os.path.join(CONFIG.get(config,'TEMPLATES_DIR'), 'text') ]),
         autoescape=select_autoescape(['html']),
         trim_blocks=True
