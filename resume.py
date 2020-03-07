@@ -86,8 +86,8 @@ def build(source_dir, name, config, overwrite):
     # Check that required files/directories are present
     for each in [ SOURCE_DIR,
                   TEMPLATES_DIR,
-                  os.path.join(TEMPLATES_DIR, f'html\\{CONFIG.get(config,"HTML_TEMPLATE")}.html'),
-                  os.path.join(TEMPLATES_DIR, f'text\\{CONFIG.get(config,"TEXT_TEMPLATE")}.txt')  ]:
+                  os.path.join(TEMPLATES_DIR, 'html', f'{CONFIG.get(config,"HTML_TEMPLATE")}.html'),
+                  os.path.join(TEMPLATES_DIR, 'text', f'{CONFIG.get(config,"TEXT_TEMPLATE")}.txt')  ]:
         
         if not os.path.exists(each):
             print(f'File or directory "{each}" does not exist.')
@@ -133,9 +133,9 @@ def build(source_dir, name, config, overwrite):
     context = {'title': True} if CONFIG.get(config, 'TITLE') else {'title': False}
     context['TEMPLATE_DIR_REL'] = os.path.relpath(CONFIG.get(config,'TEMPLATES_DIR'),out_dir)
 
-    source_files = glob(CONFIG.get(config,'SOURCES_DIR') + f'\\{source_dir}\\*.yaml')
+    source_files = glob( os.path.join( CONFIG.get(config,'SOURCES_DIR'), f'{source_dir}', '*.yaml'))
     source_file_names = list(map(lambda f: os.path.basename(f), source_files))
-    default_files = glob(CONFIG.get(config,'SOURCES_DIR') + '\\Default\\*.yaml')
+    default_files = glob( os.path.join( CONFIG.get(config,'SOURCES_DIR'), 'Default', '*.yaml'))
 
     for fname in default_files:
         if os.path.basename(fname) in source_file_names:
