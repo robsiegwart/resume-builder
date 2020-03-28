@@ -31,7 +31,7 @@ from glob import glob
 from collections import OrderedDict
 import yaml
 import pdfkit
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from jinja2 import Environment, FileSystemLoader, select_autoescape, UndefinedError
 import click
 
 from .config import *
@@ -40,13 +40,7 @@ from .version import VERSION
 
 
 def file_dir_exists(path):
-    try:
-        return os.path.exists(path)
-    except AssertionError:
-        fn = os.path.basename(path)
-        click.echo(f'Template {fn} does not exist. Exiting ...')
-        return False
-    return True
+    return True if os.path.exists(path) else False
 
 
 def build(*args,**kwargs):
@@ -139,8 +133,8 @@ def build(*args,**kwargs):
             context[name] = yaml.safe_load(f)
 
 
-    # BUILD RESUME
-    # ------------
+    # RENDER AND SAVE FILES
+    # ---------------------
     # Setup Jinja templating
     env = Environment(
         loader=FileSystemLoader([ os.path.join(CONFIG.get(config,'TEMPLATES_DIR'), 'html'),
@@ -148,28 +142,30 @@ def build(*args,**kwargs):
         autoescape=select_autoescape(['html']),
         trim_blocks=True
     )
-    
-    html_template = env.get_template(CONFIG.get(config, 'HTML_TEMPLATE') + '.html')
-    text_template = env.get_template(CONFIG.get(config, 'TEXT_TEMPLATE') + '.txt')
-    
-    # Layout the skills section if configured to do so
-    if CONFIG.get(config,'SKILLS_LAYOUT', fallback=None):
-        sl = list(map(lambda x: x.split(','), CONFIG.get(config, 'SKILLS_LAYOUT').split('|')))
-        for i,each in enumerate(sl):
-            sl[i] = list(map(lambda x: x.strip(), each))
 
-        context['skills_layout'] = sl
-
-
-    # RENDER AND SAVE FILES
-    # ---------------------
     click.echo(f'Output files will be written to directory:\n   "{out_dir}"\n')
     if overwrite:
         click.echo('Files will be overwritten.')
 
     # HTML
     if html or pdf:
-        html = html_template.render(context=context)
+        html_template = env.get_template(CONFIG.get(config, 'HTML_TEMPLATE') + '.html')
+        
+        # Layout the skills section if configured to do so
+        if CONFIG.get(config,'SKILLS_LAYOUT', fallback=None):
+            sl = list(map(lambda x: x.split(','), CONFIG.get(config, 'SKILLS_LAYOUT').split('|')))
+            for i,each in enumerate(sl):
+                sl[i] = list(map(lambda x: x.strip(), each))
+
+            context['skills_layout'] = sl
+
+        try:
+            html = html_template.render(context=context)
+        except UndefinedError as e:
+            click.echo('Error occured during html template rendering:')
+            click.echo(e)
+            return
+
         save_file(html,output_file + '.html')
         click.echo(f'Saved HTML file to "{output_file}.html"')
 
@@ -189,7 +185,13 @@ def build(*args,**kwargs):
                 )
 
                 header_template = header_env.get_template(CONFIG.get(config,'HEADER_TEMPLATE') + '.html')
-                header = header_template.render({'name': context['Header']['name']})
+
+                try:
+                    header = header_template.render({'name': context['Header']['name']})
+                except UndefinedError as e:
+                    click.echo('Error occured during pdf header template rendering:')
+                    click.echo(e)
+                    return
                 
                 header_save_file = os.path.join(
                     out_dir,
@@ -211,7 +213,15 @@ def build(*args,**kwargs):
 
     # TEXT
     if text:
-        text = text_template.render(context=context)
+        text_template = env.get_template(CONFIG.get(config, 'TEXT_TEMPLATE') + '.txt')
+
+        try:
+            text = text_template.render(context=context)
+        except UndefinedError as e:
+            click.echo('Error occured during text template rendering.')
+            click.echo(e)
+            return
+
         save_file(text,output_file + '.txt')
         click.echo(f'Saved TXT file to \"{output_file + ".txt"}\"')
 
