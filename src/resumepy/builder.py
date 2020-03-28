@@ -29,9 +29,6 @@ import os
 from datetime import datetime
 from glob import glob
 from collections import OrderedDict
-from distutils.dir_util import copy_tree
-from shutil import copy
-import sys
 import yaml
 import pdfkit
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -42,33 +39,52 @@ from .version import VERSION
 
 
 
+def file_dir_exists(path):
+    try:
+        return os.path.exists(path)
+    except AssertionError:
+        fn = os.path.basename(path)
+        click.echo(f'Template {fn} does not exist. Exiting ...')
+        return False
+    return True
+
+
 def build(*args,**kwargs):
     '''
         Generate HTML, PDF, and text versions of a resume and save them in a
         directory.
     '''
 
+    click.echo(f' ResumePy v{VERSION} '.center(80,'='))
+
+    # GET AND SET VARIABLES
+    # ---------------------
     source_dir = kwargs.get('source_dir')
     name = kwargs.get('name')
     config = kwargs.get('config')
     overwrite = kwargs.get('overwrite')
-
-    # SETUP
-    # =====
+    html = kwargs.get('html') 
+    text = kwargs.get('text') 
+    pdf =  kwargs.get('pdf')
+    
     CONFIG = load_config(source_dir)
     
     PUBLISH_DIR = CONFIG.get(config,'PUBLISH_DIR')
     SOURCE_DIR =    os.path.join(CONFIG.get(config, 'SOURCES_DIR'), source_dir)
     TEMPLATES_DIR = os.path.join(CONFIG.get(config, 'TEMPLATES_DIR'))
 
-    # Check that required files/directories are present
-    for directory in [ SOURCE_DIR, TEMPLATES_DIR,
-                       os.path.join(TEMPLATES_DIR, f'html\\{CONFIG.get(config,"HTML_TEMPLATE")}.html'),
-                       os.path.join(TEMPLATES_DIR, f'text\\{CONFIG.get(config,"TEXT_TEMPLATE")}.txt')]:
-        try:
-            assert os.path.exists(directory)
-        except AssertionError:
-            click.echo(f'File or directory "{directory}" does not exist.')
+    
+    # FILE AND DIRECTORY SETUP
+    # ------------------------
+    if not all([file_dir_exists(loc) for loc in [ SOURCE_DIR, TEMPLATES_DIR ]]):
+        click.echo('SOURCE_DIR or TEMPLATES_DIR does not exist. Exiting ...')
+        return
+    
+    html_template_exists = file_dir_exists( os.path.join(TEMPLATES_DIR, 'html',f'{CONFIG.get(config,"HTML_TEMPLATE")}.html') ) if html else None
+    text_template_exists = file_dir_exists( os.path.join(TEMPLATES_DIR, 'text', f'{CONFIG.get(config,"TEXT_TEMPLATE")}.txt') ) if text else None
+    if pdf:
+        if not html_template_exists:
+            click.echo('HTML template does not exist for PDF creation. Exiting.')
             return
     
     if not glob(os.path.join(SOURCE_DIR,'*.yaml')):
@@ -78,6 +94,7 @@ def build(*args,**kwargs):
     # Create the publish directory if it does not already exist
     if not os.path.exists(PUBLISH_DIR):
         os.mkdir(PUBLISH_DIR)
+        click.echo(f'Creating publish dir "{PUBLISH_DIR}"')
 
     # Create a new directory or clear existing directory to put built resume files in
     new_folder = source_dir + ' - ' + datetime.today().strftime('%b-%d-%Y')
@@ -103,11 +120,9 @@ def build(*args,**kwargs):
     out_dir = os.path.join(PUBLISH_DIR, new_folder)
     output_file = os.path.join(out_dir,name) if name else os.path.join(out_dir,source_dir)
 
-    # LOAD DATA AND BUILD RESUME
-    # ==========================
-    #  - resume data goes into variable 'context'
-    #  - only changed files are added to new directory
-    #  - all other unchanged data will be loaded from 'default' directory
+
+    # LOAD RESUME DATA
+    # ----------------
     context = {'title': True} if CONFIG.get(config, 'TITLE') else {'title': False}
 
     source_files = glob(os.path.join( CONFIG.get(config,'SOURCES_DIR'), source_dir, '*.yaml' ))
@@ -122,7 +137,10 @@ def build(*args,**kwargs):
             name = os.path.basename(fname)
             name = os.path.splitext(name)[0].replace('-','_').replace(' ','_')
             context[name] = yaml.safe_load(f)
-    
+
+
+    # BUILD RESUME
+    # ------------
     # Setup Jinja templating
     env = Environment(
         loader=FileSystemLoader([ os.path.join(CONFIG.get(config,'TEMPLATES_DIR'), 'html'),
@@ -143,66 +161,61 @@ def build(*args,**kwargs):
         context['skills_layout'] = sl
 
 
-    # GENERATE AND SAVE FILES
-    # =======================
-
-    click.echo(f' ResumePy v{VERSION} '.center(80,'='))
-
+    # RENDER AND SAVE FILES
+    # ---------------------
     click.echo(f'Output files will be written to directory:\n   "{out_dir}"\n')
     if overwrite:
         click.echo('Files will be overwritten.')
 
     # HTML
-    # ----
-    html = html_template.render(context=context)
-    save_file(html,output_file + '.html')
-    click.echo(f'Saved HTML file to "{output_file}.html"')
+    if html or pdf:
+        html = html_template.render(context=context)
+        save_file(html,output_file + '.html')
+        click.echo(f'Saved HTML file to "{output_file}.html"')
 
-    # PDF
-    # ---
-    pdf_in = output_file + '.html'
-    pdf_out = output_file + '.pdf'
-    PDF_OPTIONS = { 'quiet':''}
+        # PDF
+        if pdf:
+            pdf_in = output_file + '.html'
+            pdf_out = output_file + '.pdf'
+            PDF_OPTIONS = { 'quiet':''}
 
-    # Header/footer configuration and directory setup
-    if CONFIG.get(config,'HEADER',fallback=None):
-        header_env = Environment(
-            loader=FileSystemLoader(
-                [ os.path.join(CONFIG.get(config,'TEMPLATES_DIR'), 'html', CONFIG.get(config, 'HEADER_DIR')) ]),
-            autoescape=select_autoescape(['html']),
-            trim_blocks=True
-        )
+            # Header/footer configuration and directory setup for PDF header
+            if CONFIG.get(config,'HEADER',fallback=None):
+                header_env = Environment(
+                    loader=FileSystemLoader(
+                        [ os.path.join(CONFIG.get(config,'TEMPLATES_DIR'), 'html', CONFIG.get(config, 'HEADER_DIR')) ]),
+                    autoescape=select_autoescape(['html']),
+                    trim_blocks=True
+                )
 
-        header_template = header_env.get_template(CONFIG.get(config,'HEADER_TEMPLATE') + '.html')
-        header = header_template.render({'name': context['Header']['name']})
-        
-        header_save_file = os.path.join(
-            out_dir,
-            CONFIG.get(config,'HEADER_TEMPLATE') + '.html')
-        
-        save = save_file(header, header_save_file)
-        if save:
-            click.echo(f'Using generated header file for PDF:\n    "{header_save_file}".\n')
-        
-        PDF_OPTIONS['header-html'] = header_save_file
+                header_template = header_env.get_template(CONFIG.get(config,'HEADER_TEMPLATE') + '.html')
+                header = header_template.render({'name': context['Header']['name']})
+                
+                header_save_file = os.path.join(
+                    out_dir,
+                    CONFIG.get(config,'HEADER_TEMPLATE') + '.html')
+                
+                save = save_file(header, header_save_file)
+                if save:
+                    click.echo(f'Using generated header file for PDF:\n    "{header_save_file}".\n')
+                
+                PDF_OPTIONS['header-html'] = header_save_file
 
-
-
-    for k,v in CONFIG.items(config):
-        if k.startswith('pdf'):
-            key = k.replace('pdf_', '').replace('_', '-')
-            PDF_OPTIONS[key] = v
-    
-    pdfkit.from_file(pdf_in, pdf_out, options=PDF_OPTIONS)
-    click.echo(f'Saved PDF file to "{pdf_out}"')
+            for k,v in CONFIG.items(config):
+                if k.startswith('pdf'):
+                    key = k.replace('pdf_', '').replace('_', '-')
+                    PDF_OPTIONS[key] = v
+            
+            pdfkit.from_file(pdf_in, pdf_out, options=PDF_OPTIONS)
+            click.echo(f'Saved PDF file to "{pdf_out}"')
 
     # TEXT
-    # ----
-    text = text_template.render(context=context)
-    save_file(text,output_file + '.txt')
-    click.echo(f'Saved TXT file to \"{output_file + ".txt"}\"')
+    if text:
+        text = text_template.render(context=context)
+        save_file(text,output_file + '.txt')
+        click.echo(f'Saved TXT file to \"{output_file + ".txt"}\"')
 
-    click.echo('\n\n'+'End'.center(80)+'\n\n')
+    click.echo('\n\n'+'End'+'\n')
 
 
 def save_file(content,output_file):
@@ -211,37 +224,3 @@ def save_file(content,output_file):
         ofile.write(content)
     if os.path.exists(output_file):
         return True
-
-
-
-def init():
-    '''
-    Scaffold a basic file structure in the current directory.
-    '''
-    click.echo('Copying sample data into the current directory ...')
-    pkg_dir = os.path.dirname(sys.modules[__name__].__file__)   #../resumepy/
-    wd = os.getcwd()
-    
-    clean_install = []
-    subfolders = ['Templates', 'Sample Data']
-    
-    for folder in subfolders:
-        if not os.path.exists(os.path.join(wd,folder)):
-            copy_tree(os.path.join(pkg_dir,'data',folder), os.path.join(wd,folder))
-            click.echo(f'  Copied folder "{folder}"')
-            clean_install.append(True)
-            continue
-        click.echo(f'  Folder "{folder}" already exists. Skipping ...')
-        clean_install.append(False)
-    
-    # copy config.ini file
-    if not os.path.exists('config.ini'):
-        copy(os.path.join(pkg_dir,'data','config.ini'), wd)
-        click.echo('  Copied global "config.ini" file')
-        clean_install.append(True)
-    else:
-        click.echo('  Existing global "config.ini" file found. Skipping ...')
-        clean_install.append(False)
-    
-    if all(clean_install):
-        click.echo('\nTo start, issue:\n\n    resumepy build Default\n\n')
