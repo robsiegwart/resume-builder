@@ -4,11 +4,11 @@ from setuptools import setup, find_packages
 setup(
     name='resumepy',
     version=0.1,
-    package_dir={'resumepy': 'src/resumepy'},
+    package_dir={'': 'src'},
     packages=['resumepy'],
     entry_points={
         'console_scripts': [
-            'resumepy = resumepy:cli'
+            'resumepy = resumepy.cli:cli'
         ]
     },
     install_requires=[
@@ -18,5 +18,5 @@ setup(
         'jinja2>=2.11.1'
     ],
     include_package_data=True,
-    python_requires=">=3.5"
+    python_requires='>=3.5'
 )
