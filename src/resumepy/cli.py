@@ -15,10 +15,10 @@ def cli():
 @click.option('--name', default=None, help='Specify an alternate filename for published files. Default is source_dir.')
 @click.option('--config', default='DEFAULT', help='Specify a config group within local config.ini')
 @click.option('--overwrite', default=False, help='Overwrite output files.', is_flag=True)
-def build(*args,**kwawrgs):
-    builder.build(*args,**kwawrgs)
+def build(*args,**kwargs):
+    builder.build(*args,**kwargs)
 
 
 @cli.command(help='Scaffold a basic file structure in the current directory.')
-def init(*args,**kwawrgs):
-    builder.init(*args,**kwawrgs)
+def init(*args,**kwargs):
+    builder.init(*args,**kwargs)

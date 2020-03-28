@@ -42,11 +42,16 @@ from .version import VERSION
 
 
 
-def build(source_dir, name, config, overwrite):
+def build(*args,**kwargs):
     '''
         Generate HTML, PDF, and text versions of a resume and save them in a
         directory.
     '''
+
+    source_dir = kwargs.get('source_dir')
+    name = kwargs.get('name')
+    config = kwargs.get('config')
+    overwrite = kwargs.get('overwrite')
 
     # SETUP
     # =====
