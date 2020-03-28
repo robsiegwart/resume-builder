@@ -17,5 +17,6 @@ setup(
         'pdfkit>=0.6.1',
         'jinja2>=2.11.1'
     ],
-    include_package_data=True
+    include_package_data=True,
+    python_requires=">=3.5"
 )
