@@ -1,10 +1,18 @@
-# Resume Generator
+# resumepy
 
 A Python program to construct a resume based on data stored in YAML files.
 
 The motivation is to easily build different resumes based on modular data. This allows several forms of a resume to be generated at once (e.g. PDF, text, HTML), specifially when content needs to be tailored for a specific aim. Additionally, different templates can be used in order to create differently formatted versions of a resume from the same content (e.g. regular resume, CV-type resume).
 
 A default set of resume data is stored in the `Default` directory. Tailoring of a resume can be accomplished by creating a new folder with only those YAML files having changed content.
+
+## Quickstart
+
+After building and installing with setuptools/pip (i.e. `setup.py build sdist, pip install ...`), issuing the initialization command:
+
+` resumepy init `
+
+will scaffold out the required directories and files in the current directory. This will import the included data  `Sample Data` and `Templates` and create an output directory, `Publish`.
 
 ## Usage
 

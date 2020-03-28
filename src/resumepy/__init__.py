@@ -30,10 +30,17 @@ from datetime import datetime
 from glob import glob
 from collections import OrderedDict
 import configparser
+import pkgutil
+from distutils.dir_util import copy_tree
+from shutil import copy
+import sys
 import yaml
 import pdfkit
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import click
+
+
+__version__ = '0.1'
 
 
 DEFAULT_CONFIG = {
@@ -57,14 +64,22 @@ DEFAULT_CONFIG = {
 }
 
 
+@click.group()
+def cli():
+    pass
+
+
 def load_config(source_dir):
     CONFIG = configparser.ConfigParser()
     CONFIG.read_dict(DEFAULT_CONFIG)
+    # Global config
+    CONFIG.read('config.ini')
+    # Local config
     CONFIG.read(os.path.join(CONFIG.get('DEFAULT','SOURCES_DIR'), source_dir, 'config.ini'))
     return CONFIG
 
 
-@click.command()
+@cli.command()
 @click.argument('source_dir')
 @click.option('--name', default=None, help='Specify an alternate filename for published files. Default is source_dir.')
 @click.option('--config', default='DEFAULT', help='Specify a config group within local config.ini')
@@ -84,17 +99,17 @@ def build(source_dir, name, config, overwrite):
     TEMPLATES_DIR = os.path.join(CONFIG.get(config, 'TEMPLATES_DIR'))
 
     # Check that required files/directories are present
-    for each in [ SOURCE_DIR,
-                  TEMPLATES_DIR,
-                  os.path.join(TEMPLATES_DIR, f'html\\{CONFIG.get(config,"HTML_TEMPLATE")}.html'),
-                  os.path.join(TEMPLATES_DIR, f'text\\{CONFIG.get(config,"TEXT_TEMPLATE")}.txt')  ]:
-        
-        if not os.path.exists(each):
-            print(f'File or directory "{each}" does not exist.')
+    for directory in [ SOURCE_DIR, TEMPLATES_DIR,
+                       os.path.join(TEMPLATES_DIR, f'html\\{CONFIG.get(config,"HTML_TEMPLATE")}.html'),
+                       os.path.join(TEMPLATES_DIR, f'text\\{CONFIG.get(config,"TEXT_TEMPLATE")}.txt')]:
+        try:
+            assert os.path.exists(directory)
+        except AssertionError:
+            click.echo(f'File or directory "{directory}" does not exist.')
             return
     
     if not glob(os.path.join(SOURCE_DIR,'*.yaml')):
-        print('No source YAML files were found.')
+        click.echo('No source YAML files were found.')
         return
 
     # Create the publish directory if it does not already exist
@@ -116,7 +131,7 @@ def build(source_dir, name, config, overwrite):
                 for file in out_files:
                     os.remove(file)
             except PermissionError as e:
-                print('\n',e,"\nPlease close the listed file.")
+                click.echo("\nPlease close the listed file.")
                 return
     else:
         os.mkdir(os.path.join(PUBLISH_DIR, new_folder))
@@ -131,11 +146,10 @@ def build(source_dir, name, config, overwrite):
     #  - only changed files are added to new directory
     #  - all other unchanged data will be loaded from 'default' directory
     context = {'title': True} if CONFIG.get(config, 'TITLE') else {'title': False}
-    context['TEMPLATE_DIR_REL'] = os.path.relpath(CONFIG.get(config,'TEMPLATES_DIR'),out_dir)
 
-    source_files = glob(CONFIG.get(config,'SOURCES_DIR') + f'\\{source_dir}\\*.yaml')
+    source_files = glob(os.path.join( CONFIG.get(config,'SOURCES_DIR'), source_dir, '*.yaml' ))
     source_file_names = list(map(lambda f: os.path.basename(f), source_files))
-    default_files = glob(CONFIG.get(config,'SOURCES_DIR') + '\\Default\\*.yaml')
+    default_files = glob(os.path.join( CONFIG.get(config,'SOURCES_DIR'), 'Default', '*.yaml' ))
 
     for fname in default_files:
         if os.path.basename(fname) in source_file_names:
@@ -169,17 +183,17 @@ def build(source_dir, name, config, overwrite):
     # GENERATE AND SAVE FILES
     # =======================
 
-    print('\n',' PyResume '.center(80,'='), '\n')
+    click.echo(f' ResumePy v{__version__} '.center(80,'='))
 
-    print(f'Output files will be written to directory:\n   "{out_dir}"\n')
+    click.echo(f'Output files will be written to directory:\n   "{out_dir}"\n')
     if overwrite:
-        print('Files will be overwritten.')
+        click.echo('Files will be overwritten.')
 
     # HTML
     # ----
     html = html_template.render(context=context)
     save_file(html,output_file + '.html')
-    print(f'Saved HTML file to "{output_file}.html"')
+    click.echo(f'Saved HTML file to "{output_file}.html"')
 
     # PDF
     # ---
@@ -205,7 +219,7 @@ def build(source_dir, name, config, overwrite):
         
         save = save_file(header, header_save_file)
         if save:
-            print(f'Using generated header file for PDF:\n    "{header_save_file}".\n')
+            click.echo(f'Using generated header file for PDF:\n    "{header_save_file}".\n')
         
         PDF_OPTIONS['header-html'] = header_save_file
 
@@ -217,15 +231,15 @@ def build(source_dir, name, config, overwrite):
             PDF_OPTIONS[key] = v
     
     pdfkit.from_file(pdf_in, pdf_out, options=PDF_OPTIONS)
-    print(f'Saved PDF file to "{pdf_out}"')
+    click.echo(f'Saved PDF file to "{pdf_out}"')
 
     # TEXT
     # ----
     text = text_template.render(context=context)
     save_file(text,output_file + '.txt')
-    print(f'Saved TXT file to \"{output_file + ".txt"}\"')
+    click.echo(f'Saved TXT file to \"{output_file + ".txt"}\"')
 
-    print('\n\n','End'.center(80),'\n\n')
+    click.echo('\n\n'+'End'.center(80)+'\n\n')
 
 
 def save_file(content,output_file):
@@ -236,5 +250,40 @@ def save_file(content,output_file):
         return True
 
 
+@cli.command()
+def init():
+    '''
+    Scaffold a basic file structure in the current directory.
+    '''
+    click.echo('Copying sample data into the current directory ...')
+    pkg_dir = os.path.dirname(sys.modules[__name__].__file__)   #../resumepy/
+    wd = os.getcwd()
+    
+    clean_install = []
+    subfolders = ['Templates', 'Sample Data']
+    
+    for folder in subfolders:
+        if not os.path.exists(os.path.join(wd,folder)):
+            copy_tree(os.path.join(pkg_dir,'data',folder), os.path.join(wd,folder))
+            click.echo(f'  Copied folder "{folder}"')
+            clean_install.append(True)
+            continue
+        click.echo(f'  Folder "{folder}" already exists. Skipping ...')
+        clean_install.append(False)
+    
+    # copy config.ini file
+    if not os.path.exists('config.ini'):
+        copy(os.path.join(pkg_dir,'data','config.ini'), wd)
+        click.echo('  Copied global "config.ini" file')
+        clean_install.append(True)
+    else:
+        click.echo('  Existing global "config.ini" file found. Skipping ...')
+        clean_install.append(False)
+    
+    if all(clean_install):
+        click.echo('\nTo start, issue:\n\n    resumepy build Default\n\n')
+
+    
+
 if __name__ == '__main__':
-    build()
+    cli()
