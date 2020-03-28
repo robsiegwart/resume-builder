@@ -12,51 +12,63 @@ After building and installing with setuptools/pip (i.e. `setup.py build sdist, p
 
 ` resumepy init `
 
-will scaffold out the required directories and files in the current directory. This will import the included data  `Sample Data` and `Templates` and create an output directory, `Publish`.
+will copy included sample data into the current working directory. This will import the folders `Sample Data` and `Sample Templates` and a `global config.ini` file (only if they don't already exist).
 
 ## Usage
 
 ### File Structure
 
-    resume.py
-    Publish/                     (Default output directory)
-    Resume Data/                 (Default resume data files directory)
+    Publish/                     (Output directory)
+    Resume Data/                 (Store YAML files in subdirectories here)
        Default/                  
           Header.yaml
           Experience.yaml
            ...
           config.ini             (Local configuration file)
-    Templates/                   (Default templates directory)
+    Templates/                   (Templates directory)
        html/
           default.html           (Default HTML template)
-          css/                   (Include any css files)
-             style.css
-             bootstrap.min.css
-             ...
       text/
          default.txt             (Default text template)
 
 ### Command Line Tool
 
 ```
-Usage: resume.py [OPTIONS] SOURCE_DIR
+Usage: resumepy [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  build  Generate HTML, PDF, and text versions of a resume and save them in...
+  init   Scaffold a basic file structure in the current directory.
+```
+
+```
+Usage: resumepy build [OPTIONS] SOURCE_DIR
 
   Generate HTML, PDF, and text versions of a resume and save them in a
   directory.
 
 Options:
-  --name TEXT    Specify an alternate filename for published files. Default is
-                 source_dir.
-  --config TEXT  Specify a config group within local config.ini
-  --overwrite    Overwrite output files.
-  --help         Show this message and exit.
+  --name TEXT         Specify an alternate filename for published files.
+                      Default is source_dir.
+
+  --config TEXT       Specify a config group within local config.ini
+  --overwrite         Overwrite output files.
+  --html / --no-html  Create an html version. Default is true.
+  --text / --no-text  Create a text version. Default is true.
+  --pdf / --no-pdf    Create a pdf version. Default is true. (HTML is also
+                      enabled.)
+
+  --help              Show this message and exit.
 ```
 
 ### Resume Data
 
-Data is stored in YAML files within a directory in the `Resume Data` directory. A `Default` directory must exist, which serves as the base set of data. Additional directories are then added which overide the data of `Default`. Only data that changes needs included in these directories.
+Data is stored in YAML files within a directory (e.g. `Resume Data`). A `Default` directory must exist within this directory, which serves as the base set of data. Additional directories are then added which overide the data of `Default`. Only data that changes needs included in these directories. Enter the name of this folder as the argument to `build` to specify which set of data to use in creating the resume.
 
-A config.ini file may be placed in a resume data directory with any options to override the default options. Options for wkhtmltopdf are the same with just `PDF_` prefixed. This is considered a local config file.
+A `config.ini` file may be placed either at the root level of the project or within a specific resume data directory with any options to override the default options. Local config files within a resume data folder take highest priority. Various options for a config file are listed in the sample config.ini that is imported when issuing `resumepy init`.
 
 Templates currently use the following files and properties:
 
@@ -156,7 +168,7 @@ A `config.ini` file placed at the root of the project is used to specify alterna
 
 ### Local
 
-A `config.ini` file may be placed in a resume data directory with any of the global settings or any from wkhtmltopdf. Remember for wkhtmltopdf settsings them must be prefixed with 'PDF_'. Additionally a SKILLS_LAYOUT setting can be used to layout the order of groups in the Skills section.
+A `config.ini` file may be placed in a resume data directory with any of the global settings or any from wkhtmltopdf. wkhtmltopdf settings must be prefixed with 'PDF_'. Additionally a SKILLS_LAYOUT setting can be used to layout the order of groups in the Skills section.
 
   - PDF_MARGIN_RIGHT, PDF_MARGIN_LEFT, ...
     * Set the margins in the pdf file; accepts a string with units (e.g. '0.75in')
