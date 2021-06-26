@@ -1,10 +1,9 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 setup(
     name='resumepy',
-    version=0.1,
-    package_dir={'': 'src'},
+    version='0.1.0',
     packages=['resumepy'],
     entry_points={
         'console_scripts': [
@@ -17,6 +16,5 @@ setup(
         'pdfkit>=0.6.1',
         'jinja2>=2.11.1'
     ],
-    include_package_data=True,
-    python_requires='>=3.5'
+    python_requires='>=3.5',
 )

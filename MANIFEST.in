@@ -1,1 +1,1 @@
-recursive-include src/resumepy/data *
+recursive-include resumepy/data *
