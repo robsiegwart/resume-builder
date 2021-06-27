@@ -17,4 +17,5 @@ setup(
         'jinja2>=2.11.1'
     ],
     python_requires='>=3.5',
+    include_package_data=True
 )
