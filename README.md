@@ -90,7 +90,17 @@ imported when issuing `resumepy init`.
 
 Templates currently use the following files and properties:
 
-#### Header.yaml
+- [Certifications.yaml](#Certifications)
+- [Education.yaml](#Education)
+- [Experience.yaml](#Experience)
+- [Header.yaml](#Header)
+- [Patents.yaml](#Patents)
+- [Performance profile.yaml](#Performance_profile)
+- [Skills.yaml](#Skills)
+- [Training.yaml](#Training)
+
+
+#### <a id="Header"></a>Header.yaml
 
     name     : <name>
     title    : <title>
@@ -100,11 +110,11 @@ Templates currently use the following files and properties:
         email   : <value>
         web     : <value>
 
-#### Performance profile.yaml
+#### <a id="Performance_profile"></a>Performance profile.yaml
 
     <string>
 
-#### Skills.yaml
+#### <a id="Skills"></a>Skills.yaml
 
     <category title> :
       - <skill>
@@ -113,7 +123,7 @@ Templates currently use the following files and properties:
     
     (repeat)
 
-#### Experience.yaml
+#### <a id="Experience"></a>Experience.yaml
 
     <company 1 name> :
       location: <location>
@@ -131,7 +141,7 @@ Templates currently use the following files and properties:
     
     (repeat)
 
-#### Education.yaml
+#### <a id="Education"></a>Education.yaml
 
     <degree> :
       school : <name>
@@ -141,14 +151,14 @@ Templates currently use the following files and properties:
     
     (repeat)
 
-#### Training.yaml
+#### <a id="Training"></a>Training.yaml
 
     <title>:
       description : <description>
     
     (repeat)
 
-#### Certifications.yaml
+#### <a id="Certifications"></a>Certifications.yaml
 
     <Certification name> :
       <property>: <value>
@@ -156,7 +166,7 @@ Templates currently use the following files and properties:
 
     (repeat)
 
-#### Patents.yaml
+#### <a id="Patents"></a>Patents.yaml
 
     <Patent name> :
       patent number : <number>
