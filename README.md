@@ -27,18 +27,23 @@ file (only if they don't already exist).
 
 ### File Structure
 
-    Publish/                  (Output directory)
-    Resume Data/              (Store YAML files in subdirectories here)
-      Default/                  
-        Header.yaml
-        Experience.yaml
-        ...
-        config.ini            (Local configuration file)
-    Templates/                (Templates directory)
-      html/
-        default.html          (Default HTML template)
-      text/
-        default.txt           (Default text template)
+    [-] Project  
+     |-- config.ini                     (Global configuration file)
+     |-- [-] Publish                    (Output directory)
+     |    |-- Default - 070221-150112
+     |    |-- Default - 070221-150336
+     |    +-- ...
+     |-- [-] Resume Data                (Store YAML files in subdirectories here)
+     |    |-- Default                  
+     |    |-- Header.yaml
+     |    |-- Experience.yaml
+     |    |-- ...
+     |    +-- config.ini                (Local configuration file)
+     +-- [-] Templates                  (Templates directory)
+          |-- [-] html
+          |    +-- default.html         (Default HTML template)
+          +-- [-] text
+               +-- default.txt          (Default text template)
 
 ### Command Line Tool
 
