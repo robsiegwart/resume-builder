@@ -1,4 +1,4 @@
-from .builder import build
+from .resume import Resume
 from .quickstart import init
 from .version import VERSION
 

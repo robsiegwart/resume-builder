@@ -1,9 +1,9 @@
 '''
-    Configuration stuff.
+Configuration handling.
 '''
 
 import configparser
-from os.path import join
+import os
 
 
 DEFAULT_CONFIG = {
@@ -32,6 +32,10 @@ def load_config(source_dir):
     CONFIG.read_dict(DEFAULT_CONFIG)
     # Try to read any global config
     CONFIG.read('config.ini')
-    # Try to read any Local config
-    CONFIG.read(join(CONFIG.get('DEFAULT','SOURCES_DIR'), source_dir, 'config.ini'))
+    # Try to read any config.ini saved in the source directory
+    CONFIG.read(os.path.join(
+        CONFIG.get('DEFAULT', 'SOURCES_DIR'),
+        source_dir,
+        'config.ini'
+    ))
     return CONFIG

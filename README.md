@@ -27,18 +27,18 @@ file (only if they don't already exist).
 
 ### File Structure
 
-    Publish/                     (Output directory)
-    Resume Data/                 (Store YAML files in subdirectories here)
-       Default/                  
-          Header.yaml
-          Experience.yaml
-           ...
-          config.ini             (Local configuration file)
-    Templates/                   (Templates directory)
-       html/
-          default.html           (Default HTML template)
+    Publish/                  (Output directory)
+    Resume Data/              (Store YAML files in subdirectories here)
+      Default/                  
+        Header.yaml
+        Experience.yaml
+        ...
+        config.ini            (Local configuration file)
+    Templates/                (Templates directory)
+      html/
+        default.html          (Default HTML template)
       text/
-         default.txt             (Default text template)
+        default.txt           (Default text template)
 
 ### Command Line Tool
 
@@ -60,17 +60,11 @@ Usage: resumepy build [OPTIONS] SOURCE_DIR
   directory.
 
 Options:
-  --name TEXT         Specify an alternate filename for published files.
-                      Default is source_dir.
-
-  --config TEXT       Specify a config group within local config.ini
-  --overwrite         Overwrite output files.
-  --html / --no-html  Create an html version. Default is true.
-  --text / --no-text  Create a text version. Default is true.
-  --pdf / --no-pdf    Create a pdf version. Default is true. (HTML is also
-                      enabled.)
-
-  --help              Show this message and exit.
+  --name TEXT     Specify an alternate filename for published files. Default
+                  is SOURCE_DIR.
+  --section TEXT  The config section to use from the local config.ini file.
+                  Default is "DEFAULT"
+  --help          Show this message and exit.
 ```
 
 ### Resume Data

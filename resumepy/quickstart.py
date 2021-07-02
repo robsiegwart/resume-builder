@@ -7,12 +7,13 @@ from shutil import copy
 
 SAMPLE_FOLDERS = ['Sample Templates', 'Sample Data']
 
+
 def init():
     '''
     Copy the sample data to the user's working directory.
     '''
     click.echo('Copying sample data into the current directory ...')
-    pkg_dir = os.path.dirname(sys.modules[__name__].__file__)   #../resumepy/
+    pkg_dir = os.path.dirname(sys.modules[__name__].__file__)
     wd = os.getcwd()
     
     clean_install = []
