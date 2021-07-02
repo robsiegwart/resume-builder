@@ -24,7 +24,7 @@ class Resume:
     :param str name:            Specify an alternate filename for published
                                 files. Default is ``source_dir``.
     :param str section:         The config section to use from the local
-                                ``config.ini`` file.
+                                ``config.ini`` file. Default is ``DEFAULT``.
     '''
     def __init__(self, source_dir, name=None, section='DEFAULT'):
         self.source_dir = source_dir
@@ -61,7 +61,7 @@ class Resume:
 
     @cached_property
     def env(self):
-        '''Return the Jinja environment object'''
+        '''The Jinja environment object'''
         return Environment(
             loader=FileSystemLoader([ os.path.join(self.CONFIG.get(self.section,'TEMPLATES_DIR'), 'html'),
                                       os.path.join(self.CONFIG.get(self.section,'TEMPLATES_DIR'), 'text') ]),
@@ -71,10 +71,12 @@ class Resume:
 
     @cached_property
     def publish_dir(self):
+        '''The containing publish directory'''
         return self.CONFIG.get(self.section, 'PUBLISH_DIR')
     
     @cached_property
     def source_dir(self):
+        '''The directory containing source YAML files'''
         return os.path.join(self.CONFIG.get(self.section, 'SOURCES_DIR'), self.source_dir)
     
     @property
@@ -104,11 +106,12 @@ class Resume:
         '''
         click.echo(f'Output files will be written to directory:\n   "{self.out_dir}"\n')
 
-        # Save HTML
+        # ///////////////////////////// Save HTML \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
         self.save_file(self.html, self.output_file + '.html')
         click.echo(f'Saved HTML file to "{self.output_file}.html"')
 
-        # save PDF
+        # ////////////////////////////// Save PDF \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
         pdf_in = self.output_file + '.html'
         pdf_out = self.output_file + '.pdf'
         PDF_OPTIONS = {'quiet':''}
@@ -142,7 +145,7 @@ class Resume:
         pdfkit.from_file(pdf_in, pdf_out, options=PDF_OPTIONS)
         click.echo(f'Saved PDF file to "{pdf_out}"')
 
-        # Save text
+        # ////////////////////////////// Save Text \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
         self.save_file(self.text, self.output_file + '.txt')
         click.echo(f'Saved TXT file to \"{self.output_file + ".txt"}\"')
 
