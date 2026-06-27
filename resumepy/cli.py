@@ -14,10 +14,12 @@ def cli():
 
 @cli.command(help='Generate HTML and text versions of a resume and save them in a directory.')
 @click.argument('source_dir')
-@click.option('--name', default=None, help='Specify an alternate filename for published files. Default is SOURCE_DIR.')
-@click.option('--section', default='DEFAULT', help='The config section to use from the local config.ini file. Default is "DEFAULT"')
-def build(source_dir, name, section):
-    resume = Resume(source_dir, name, section)
+@click.option('--variant', default=None, help='Subfolder of SOURCE_DIR containing override YAML files.')
+@click.option('--name', default=None, help='Output filename base. Defaults to the source folder name.')
+@click.option('--theme', default='default', help='Bundled theme name or path to a custom HTML template. Default: default.')
+@click.option('--output', default='dist', help='Output directory. Default: dist.')
+def build(source_dir, variant, name, theme, output):
+    resume = Resume(source_dir, variant=variant, theme=theme, output_dir=output, name=name)
     resume.publish()
 
 

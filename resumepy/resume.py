@@ -1,111 +1,78 @@
 '''
-Build HTML and text versions of a resume from YAML data files.
+Build a resume from YAML data files using a Jinja2 theme template.
 '''
 
-import os
-from glob import glob
+from pathlib import Path
 from functools import cached_property
 import yaml
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import click
 from importlib.metadata import version as _pkg_version
-from .config import *
+
+
+THEMES_DIR = Path(__file__).parent / 'themes'
 
 
 class Resume:
     '''
     A resume document.
 
-    :param str source_dir:      The string name of the directory to use containing
-                                the source YAML files for the resume content
-    :param str name:            Specify an alternate filename for published
-                                files. Default is ``source_dir``.
-    :param str section:         The config section to use from the local
-                                ``config.ini`` file. Default is ``DEFAULT``.
+    :param source_dir:  Path to the folder containing base YAML files.
+    :param variant:     Name of a subfolder within source_dir with override YAML files.
+    :param theme:       Bundled theme name or path to a custom template file.
+    :param output_dir:  Directory to write the output file. Default: 'dist'.
+    :param name:        Output filename base. Defaults to the source folder name.
     '''
-    def __init__(self, source_dir, name=None, section='DEFAULT'):
-        self._source_name = source_dir
-        self.name = name if name else source_dir
-        self.section = section
-        self.CONFIG = load_config(source_dir)
+    def __init__(self, source_dir, variant=None, theme='default', output_dir='dist', name=None):
+        self.source_dir = Path(source_dir)
+        self.variant = variant
+        self.theme = theme
+        self.output_dir = Path(output_dir)
+        self.name = name or self.source_dir.resolve().name
 
-        click.echo(f' ResumePy v{_pkg_version("resumepy")} '.center(80,'='))
+        click.echo(f' ResumePy v{_pkg_version("resumepy")} '.center(80, '='))
 
-        os.makedirs(self.publish_dir, exist_ok=True)
+        self.context = {}
+        self._load_yaml(self.source_dir)
+        if variant:
+            self._load_yaml(self.source_dir / variant)
 
-        # Read in resume data
-        self.context = {'title': True} if self.CONFIG.get(self.section, 'TITLE') else {'title': False}
-        source_files = glob(os.path.join( self.CONFIG.get(self.section, 'SOURCES_DIR'), source_dir, '*.yaml' ))
-        source_file_names = list(map(lambda f: os.path.basename(f), source_files))
-        default_files = glob(os.path.join( self.CONFIG.get(self.section, 'SOURCES_DIR'), 'Default', '*.yaml' ))
+        self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        for fname in default_files:
-            if os.path.basename(fname) in source_file_names:
-                bn = os.path.basename(fname)
-                fname = list(filter(lambda f: bn in f, source_files))[0]
-            with open(fname) as f:
-                name = os.path.splitext(os.path.basename(fname))[0].replace('-', '_').replace(' ', '_')
-                self.context[name] = yaml.safe_load(f)
-        
-        self.output_file = os.path.join(self.publish_dir, self.name)
+    def _load_yaml(self, directory):
+        for f in sorted(Path(directory).glob('*.yaml')):
+            key = f.stem.replace('-', '_').replace(' ', '_')
+            self.context[key] = yaml.safe_load(f.read_text())
+
+    @cached_property
+    def _theme_info(self):
+        '''Resolve (theme_dir, template_filename, output_suffix) from self.theme.'''
+        theme_path = Path(self.theme)
+        if theme_path.is_file():
+            return theme_path.parent, theme_path.name, theme_path.suffix
+        theme_dir = THEMES_DIR / self.theme
+        candidates = list(theme_dir.glob(f'{self.theme}.*'))
+        if not candidates:
+            raise FileNotFoundError(f'No template found for theme "{self.theme}" in {theme_dir}')
+        f = candidates[0]
+        return theme_dir, f.name, f.suffix
 
     @cached_property
     def env(self):
-        '''The Jinja environment object'''
+        theme_dir, _, suffix = self._theme_info
         return Environment(
-            loader=FileSystemLoader([ os.path.join(self.CONFIG.get(self.section,'TEMPLATES_DIR'), 'html'),
-                                      os.path.join(self.CONFIG.get(self.section,'TEMPLATES_DIR'), 'text') ]),
-            autoescape=select_autoescape(['html']),
+            loader=FileSystemLoader(str(theme_dir)),
+            autoescape=select_autoescape(['html']) if suffix == '.html' else False,
             trim_blocks=True
         )
 
-    @cached_property
-    def publish_dir(self):
-        '''The containing publish directory'''
-        return self.CONFIG.get(self.section, 'PUBLISH_DIR')
-    
-    @cached_property
-    def source_dir(self):
-        '''The directory containing source YAML files'''
-        return os.path.join(self.CONFIG.get(self.section, 'SOURCES_DIR'), self._source_name)
-    
-    @property
-    def html(self):
-        '''Return the rendered HTML form of the resume'''
-        html_template = self.env.get_template(self.CONFIG.get(self.section, 'HTML_TEMPLATE') + '.html')
-        
-        # Layout the skills section if configured to do so
-        if self.CONFIG.get(self.section, 'SKILLS_LAYOUT', fallback=None):
-            sl = list(map(lambda x: x.split(','), self.CONFIG.get(self.section, 'SKILLS_LAYOUT').split('|')))
-            for i,each in enumerate(sl):
-                sl[i] = list(map(lambda x: x.strip(), each))
-
-            self.context['skills_layout'] = sl
-
-        return html_template.render(context=self.context)
-
-    @property
-    def text(self):
-        '''Return the text form of the resume'''
-        text_template = self.env.get_template(self.CONFIG.get(self.section, 'TEXT_TEMPLATE') + '.txt')
-        return text_template.render(context=self.context)
+    def render(self):
+        _, template_name, _ = self._theme_info
+        return self.env.get_template(template_name).render(context=self.context)
 
     def publish(self):
-        '''
-        Save out all specified versions of the resume to the output directory.
-        '''
-        click.echo(f'Output files will be written to "{self.publish_dir}/"')
-
-        # ///////////////////////////// Save HTML \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-
-        self.save_file(self.html, self.output_file + '.html')
-        click.echo(f'Saved HTML file to "{self.output_file}.html"')
-
-        # ////////////////////////////// Save Text \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-        self.save_file(self.text, self.output_file + '.txt')
-        click.echo(f'Saved TXT file to \"{self.output_file + ".txt"}\"')
-
-    def save_file(self, content, filename):
-        '''Save out a file'''
-        with open(filename, 'w') as ofile:
-            ofile.write(content)
+        _, _, suffix = self._theme_info
+        out = self.output_dir / (self.name + suffix)
+        click.echo(f'Output will be written to "{self.output_dir}/"')
+        out.write_text(self.render())
+        click.echo(f'Saved to "{out}"')
