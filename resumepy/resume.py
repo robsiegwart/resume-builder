@@ -11,8 +11,8 @@ import yaml
 import pdfkit
 from jinja2 import Environment, FileSystemLoader, select_autoescape, UndefinedError
 import click
+from importlib.metadata import version as _pkg_version
 from .config import *
-from .version import VERSION
 
 
 class Resume:
@@ -32,7 +32,7 @@ class Resume:
         self.section = section
         self.CONFIG = load_config(source_dir)
 
-        click.echo(f' ResumePy v{VERSION} '.center(80,'='))
+        click.echo(f' ResumePy v{_pkg_version("resumepy")} '.center(80,'='))
 
         # Create the publish directory if it does not already exist
         if not os.path.exists(self.publish_dir):

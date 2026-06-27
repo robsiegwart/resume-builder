@@ -1,8 +1,7 @@
 import click
 import os
 import sys
-from distutils.dir_util import copy_tree
-from shutil import copy
+from shutil import copy, copytree
 
 
 SAMPLE_FOLDERS = ['Sample Templates', 'Sample Data']
@@ -20,7 +19,7 @@ def init():
     
     for folder in SAMPLE_FOLDERS:
         if not os.path.exists(os.path.join(wd,folder)):
-            copy_tree(os.path.join(pkg_dir,'data',folder), os.path.join(wd,folder))
+            copytree(os.path.join(pkg_dir,'data',folder), os.path.join(wd,folder))
             click.echo(f'  {folder}/')
             clean_install.append(True)
             continue
