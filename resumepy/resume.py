@@ -28,7 +28,8 @@ class Resume:
         self.variant = variant
         self.theme = theme
         self.output_dir = Path(output_dir)
-        self.name = name or self.source_dir.resolve().name
+        base = name or self.source_dir.resolve().name
+        self.name = f'{base}-{variant}' if (variant and not name) else base
 
         click.echo(f' ResumePy v{_pkg_version("resumepy")} '.center(80, '='))
 
