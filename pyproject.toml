@@ -14,3 +14,6 @@ dependencies = [
 
 [project.scripts]
 resumepy = "resumepy.cli:cli"
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
