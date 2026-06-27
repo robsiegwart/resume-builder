@@ -10,7 +10,7 @@ DEFAULT_CONFIG = {
     'DEFAULT': {
         'TEMPLATES_DIR' :              'Templates',
         'SOURCES_DIR' :                'Resume Data',
-        'PUBLISH_DIR' :                'Publish',
+        'PUBLISH_DIR' :                'dist',
         'HTML_TEMPLATE' :              'default',
         'TEXT_TEMPLATE' :              'default',
         'TITLE':                       '',

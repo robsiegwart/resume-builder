@@ -16,13 +16,6 @@ def scaffolded(tmp_path, monkeypatch, runner):
     return tmp_path
 
 
-def _output_dir(publish_path):
-    """Return the single timestamped subdirectory under Publish/."""
-    dirs = list(publish_path.iterdir())
-    assert len(dirs) == 1, f"Expected 1 output dir, found {len(dirs)}"
-    return dirs[0]
-
-
 # ---------------------------------------------------------------------------
 # init
 # ---------------------------------------------------------------------------
@@ -42,7 +35,6 @@ def test_init_skips_existing_folders(tmp_path, monkeypatch, runner):
     result = runner.invoke(cli, ['init'])
     assert result.exit_code == 0
     assert 'Skipping' in result.output
-    # The folder that didn't exist should still be created
     assert (tmp_path / 'Sample Data').is_dir()
 
 
@@ -52,7 +44,6 @@ def test_init_skips_existing_config(tmp_path, monkeypatch, runner):
     result = runner.invoke(cli, ['init'])
     assert result.exit_code == 0
     assert 'Skipping' in result.output
-    # Original content must be preserved
     assert (tmp_path / 'config.ini').read_text() == '[DEFAULT]\n'
 
 
@@ -63,23 +54,30 @@ def test_init_skips_existing_config(tmp_path, monkeypatch, runner):
 def test_build_default_produces_html_and_txt(scaffolded, runner):
     result = runner.invoke(cli, ['build', 'Default'])
     assert result.exit_code == 0
-    out = _output_dir(scaffolded / 'Publish')
-    assert (out / 'Default.html').stat().st_size > 0
-    assert (out / 'Default.txt').stat().st_size > 0
+    dist = scaffolded / 'dist'
+    assert (dist / 'Default.html').stat().st_size > 0
+    assert (dist / 'Default.txt').stat().st_size > 0
+
+
+def test_build_overwrites_on_second_run(scaffolded, runner):
+    runner.invoke(cli, ['build', 'Default'])
+    first = (scaffolded / 'dist' / 'Default.html').read_text()
+    runner.invoke(cli, ['build', 'Default'])
+    second = (scaffolded / 'dist' / 'Default.html').read_text()
+    assert first == second
 
 
 def test_build_name_flag_changes_output_filename(scaffolded, runner):
     result = runner.invoke(cli, ['build', 'Default', '--name', 'my_resume'])
     assert result.exit_code == 0
-    out = _output_dir(scaffolded / 'Publish')
-    assert (out / 'my_resume.html').is_file()
-    assert (out / 'my_resume.txt').is_file()
+    dist = scaffolded / 'dist'
+    assert (dist / 'my_resume.html').is_file()
+    assert (dist / 'my_resume.txt').is_file()
 
 
 def test_build_default_html_contains_name(scaffolded, runner):
     runner.invoke(cli, ['build', 'Default'])
-    out = _output_dir(scaffolded / 'Publish')
-    html = (out / 'Default.html').read_text()
+    html = (scaffolded / 'dist' / 'Default.html').read_text()
     assert 'John Doe' in html
 
 
@@ -87,7 +85,6 @@ def test_build_custom_variant_merges_over_default(scaffolded, runner):
     """Custom-1 overrides Header.yaml — name should reflect Custom-1's value."""
     result = runner.invoke(cli, ['build', 'Custom-1'])
     assert result.exit_code == 0
-    out = _output_dir(scaffolded / 'Publish')
-    html = (out / 'Custom-1.html').read_text()
+    html = (scaffolded / 'dist' / 'Custom-1.html').read_text()
     assert 'John Doe II' in html
     assert 'John Doe' in html  # still present (email etc. shared)

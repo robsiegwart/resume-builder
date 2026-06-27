@@ -3,7 +3,6 @@ Build HTML and text versions of a resume from YAML data files.
 '''
 
 import os
-from datetime import datetime
 from glob import glob
 from functools import cached_property
 import yaml
@@ -32,14 +31,7 @@ class Resume:
 
         click.echo(f' ResumePy v{_pkg_version("resumepy")} '.center(80,'='))
 
-        # Create the publish directory if it does not already exist
-        if not os.path.exists(self.publish_dir):
-            os.mkdir(self.publish_dir)
-            click.echo(f'Creating publish dir "{self.publish_dir}"')
-
-        # Create a new directory or clear existing directory to put built resume files in
-        self.out_dir = os.path.join(self.publish_dir, source_dir + ' - ' + datetime.today().strftime('%m%d%Y-%H%M%S'))
-        os.mkdir(self.out_dir)
+        os.makedirs(self.publish_dir, exist_ok=True)
 
         # Read in resume data
         self.context = {'title': True} if self.CONFIG.get(self.section, 'TITLE') else {'title': False}
@@ -55,7 +47,7 @@ class Resume:
                 name = os.path.splitext(os.path.basename(fname))[0].replace('-', '_').replace(' ', '_')
                 self.context[name] = yaml.safe_load(f)
         
-        self.output_file = os.path.join(self.out_dir, self.name)
+        self.output_file = os.path.join(self.publish_dir, self.name)
 
     @cached_property
     def env(self):
@@ -102,7 +94,7 @@ class Resume:
         '''
         Save out all specified versions of the resume to the output directory.
         '''
-        click.echo(f'Output files will be written to directory:\n   "{self.out_dir}"\n')
+        click.echo(f'Output files will be written to "{self.publish_dir}/"')
 
         # ///////////////////////////// Save HTML \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
