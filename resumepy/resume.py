@@ -27,7 +27,7 @@ class Resume:
                                 ``config.ini`` file. Default is ``DEFAULT``.
     '''
     def __init__(self, source_dir, name=None, section='DEFAULT'):
-        self.source_dir = source_dir
+        self._source_name = source_dir
         self.name = name if name else source_dir
         self.section = section
         self.CONFIG = load_config(source_dir)
@@ -77,7 +77,7 @@ class Resume:
     @cached_property
     def source_dir(self):
         '''The directory containing source YAML files'''
-        return os.path.join(self.CONFIG.get(self.section, 'SOURCES_DIR'), self.source_dir)
+        return os.path.join(self.CONFIG.get(self.section, 'SOURCES_DIR'), self._source_name)
     
     @property
     def html(self):
