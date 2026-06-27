@@ -43,7 +43,7 @@ class Resume:
     def _load_yaml(self, directory):
         for f in sorted(Path(directory).glob('*.yaml')):
             key = f.stem.replace('-', '_').replace(' ', '_')
-            self.context[key] = yaml.safe_load(f.read_text())
+            self.context[key] = yaml.safe_load(f.read_text(encoding='utf-8'))
 
     @cached_property
     def _theme_info(self):
@@ -75,5 +75,5 @@ class Resume:
         _, _, suffix = self._theme_info
         out = self.output_dir / (self.name + suffix)
         click.echo(f'Output will be written to "{self.output_dir}/"')
-        out.write_text(self.render())
+        out.write_text(self.render(), encoding='utf-8')
         click.echo(f'Saved to "{out}"')
