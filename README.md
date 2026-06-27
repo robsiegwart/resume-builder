@@ -1,210 +1,239 @@
 # resumepy
 
-A Python program to construct a resume based on data stored in YAML files.
+A command-line tool to build a resume from YAML data files and a Jinja2 theme template.
 
-The motivation is to easily build different resumes based on modular data. This
-allows several forms of a resume to be generated at once (e.g. HTML, text),
-specifially when content needs to be tailored for a specific aim. Additionally,
-different templates can be used in order to create differently formatted
-versions of a resume from the same content (e.g. regular resume, CV-type resume).
+Resume content is stored as a set of YAML files — one per section — in a project folder.
+The tool renders them through a chosen theme to produce a single output file (HTML, text, etc.).
+Variations of a resume (e.g. targeted for a specific role) are handled by creating a subfolder
+containing only the files that differ; everything else falls back to the base folder.
 
-A default set of resume data is stored in the `Default` directory. Tailoring of
-a resume can be accomplished by creating a new folder with only those YAML files
-having changed content.
+## Installation
+
+With [uv](https://docs.astral.sh/uv/):
+
+```
+uv tool install .
+```
+
+Or with pip:
+
+```
+pip install .
+```
 
 ## Quickstart
 
-After downloading and installing (i.e. `pip install .`), issuing the
-initialization command:
+Create a sample resume folder in the current directory:
 
-`resumepy init`
+```
+resumepy init
+```
 
-will copy the included sample data into the current working directory. This will
-import the folders `Sample Data` and `Sample Templates` and a global `config.ini`
-file (only if they don't already exist).
+This copies the bundled sample YAML files into a new `resume/` folder. Build it:
+
+```
+resumepy build resume/
+```
+
+Output is written to `dist/resume.html` by default. You can also run the build from
+inside the project folder itself:
+
+```
+cd resume/
+resumepy build .
+```
 
 ## Usage
 
-### File Structure
+### File structure
 
-    [-] Project  
-     |-- config.ini                     (Global configuration file)
-     |-- [-] Publish                    (Output directory)
-     |    |-- Default - 070221-150112
-     |    |-- Default - 070221-150336
-     |    +-- ...
-     |-- [-] Resume Data                (Store YAML files in subdirectories here)
-     |    |-- Default                  
-     |    |-- Header.yaml
-     |    |-- Experience.yaml
-     |    |-- ...
-     |    +-- config.ini                (Local configuration file)
-     +-- [-] Templates                  (Templates directory)
-          |-- [-] html
-          |    +-- default.html         (Default HTML template)
-          +-- [-] text
-               +-- default.txt          (Default text template)
+```
+my-resume/                  ← your YAML source folder
+  Header.yaml
+  Experience.yaml
+  Education.yaml
+  Skills.yaml
+  Performance profile.yaml
+  senior-role/              ← variant subfolder (only files that differ)
+    Header.yaml
 
-### Command Line Tool
+dist/                       ← output (created automatically)
+  my-resume.html
+```
+
+### Commands
 
 ```
 Usage: resumepy [OPTIONS] COMMAND [ARGS]...
 
-Options:
-  --help  Show this message and exit.
-
 Commands:
-  build  Generate HTML and text versions of a resume and save them in...
-  init   Scaffold a basic file structure in the current directory.
+  build  Build a resume from a folder of YAML files.
+  init   Create a sample resume folder in the current directory.
 ```
+
+#### build
 
 ```
 Usage: resumepy build [OPTIONS] SOURCE_DIR
 
-  Generate HTML and text versions of a resume and save them in a directory.
+  Build a resume from a folder of YAML files.
+
+  SOURCE_DIR is the path to a folder of YAML files. Pass '.' to use the
+  current directory.
 
 Options:
-  --name TEXT     Specify an alternate filename for published files. Default
-                  is SOURCE_DIR.
-  --section TEXT  The config section to use from the local config.ini file.
-                  Default is "DEFAULT"
+  --variant TEXT  Subfolder of SOURCE_DIR containing override YAML files.
+  --theme TEXT    Bundled theme name or path to a custom template file.
+                  Default: default (produces .html).
+  --output TEXT   Output directory. Default: dist.
+  --name TEXT     Output filename base. Defaults to the source folder name.
   --help          Show this message and exit.
 ```
 
-### Resume Data
+#### init
 
-Data is stored in YAML files within a directory (e.g. `Resume Data`). A
-`Default` directory must exist within this directory, which serves as the base
-set of data. Additional directories are then added which overide the data of
-`Default`. Only data that changes needs included in these directories. Enter
-the name of this folder as the argument to `build` to specify which set of data
-to use in creating the resume.
+```
+Usage: resumepy init [NAME]
 
-A `config.ini` file may be placed either at the root level of the project or
-within a specific resume data directory with any options to override the default
-options. Local config files within a resume data folder take highest priority.
-Various options for a config file are listed in the sample config.ini that is
-imported when issuing `resumepy init`.
+  Create a sample resume folder in the current directory.
 
-Templates currently use the following files and properties:
+  NAME is the folder to create. Default: resume.
+```
 
-- [Certifications.yaml](#Certifications)
-- [Education.yaml](#Education)
-- [Experience.yaml](#Experience)
-- [Header.yaml](#Header)
-- [Patents.yaml](#Patents)
-- [Performance profile.yaml](#Performance_profile)
-- [Skills.yaml](#Skills)
-- [Training.yaml](#Training)
+### Variants
 
+A variant is a subfolder within your source folder containing only the YAML
+files that differ from the base. To build a targeted version of a resume:
 
-#### <a id="Header"></a>Header.yaml
+```
+my-resume/
+  Header.yaml           ← base
+  Experience.yaml       ← base
+  senior-role/
+    Header.yaml         ← overrides the base Header.yaml only
+```
 
-    name     : <name>
-    title    : <title>
-    contact info :
-        address : <value>
-        cell    : <value>
-        email   : <value>
-        web     : <value>
+```
+resumepy build my-resume/ --variant senior-role
+```
 
-#### <a id="Performance_profile"></a>Performance profile.yaml
+The output filename is taken from `SOURCE_DIR`, not the variant name. Use
+`--name` to override it.
 
-    <string>
+### Themes
 
-#### <a id="Skills"></a>Skills.yaml
+Bundled themes are selected by name. The theme's file extension determines
+the output file format.
 
-    <category title> :
-      - <skill>
-      - <skill>
-      - <skill>
-    
-    (repeat)
+| Theme name    | Output   | Description          |
+|---------------|----------|----------------------|
+| `default`     | `.html`  | Default HTML resume  |
+| `default-txt` | `.txt`   | Plain text resume    |
 
-#### <a id="Experience"></a>Experience.yaml
+```
+resumepy build my-resume/ --theme default-txt
+```
 
-    <company 1 name> :
-      location: <location>
-      positions :
-        <position 1 name> :
-          dates : <dates>
-        <position 2 name> :
-          dates : <dates>
-      summary : >
-        <summary paragraph>
-      selected achievements :
-        - <item>
-        - <item>
-        - ...
-    
-    (repeat)
+To use a custom template, pass a path to any Jinja2 template file. The
+output extension is taken from the file's own extension:
 
-#### <a id="Education"></a>Education.yaml
+```
+resumepy build my-resume/ --theme ~/templates/my-resume.html
+```
 
-    <degree> :
-      school : <name>
-      date: <date>
-      address: <address>
-      gpa: <number>
-    
-    (repeat)
+## YAML schemas
 
-#### <a id="Training"></a>Training.yaml
+Each section of the resume is a separate YAML file. Only the files relevant
+to your content are required; sections not present are simply skipped by the
+template.
 
-    <title>:
-      description : <description>
-    
-    (repeat)
+### Header.yaml
 
-#### <a id="Certifications"></a>Certifications.yaml
+```yaml
+name     : <name>
+title    : <title>
+contact info :
+  address : <value>
+  cell    : <value>
+  email   : <value>
+  web     : <value>
+```
 
-    <Certification name> :
-      <property>: <value>
-      ...
+### Performance profile.yaml
 
-    (repeat)
+```yaml
+<paragraph of text>
+```
 
-#### <a id="Patents"></a>Patents.yaml
+### Skills.yaml
 
-    <Patent name> :
-      patent number : <number>
-      issued : <date>
-      description : <value>
+```yaml
+<category title> :
+  - <skill>
+  - <skill>
 
+(repeat)
+```
 
-## Configuration files
+### Experience.yaml
 
-### Global
+```yaml
+<company name> :
+  location: <location>
+  positions :
+    <position title> :
+      dates : <dates>
+  summary : >
+    <summary paragraph>
+  selected achievements :
+    - <item>
+    - <item>
 
-A `config.ini` file placed at the root of the project is used to specify
-alternate directories for resume data, the templates directory, and the
-publish directory. These are set with the following parameters and their
-defaults:
+(repeat)
+```
 
-  - TEMPLATES_DIR (Templates)
-  - SOURCES_DIR (Resume Data)
-  - PUBLISH_DIR (Publish)
-  - HTML_TEMPLATE (default)
-  - TEXT_TEMPLATE (default)
-  - TITLE ("")
+### Education.yaml
 
+```yaml
+<degree> :
+  school  : <name>
+  date    : <date>
+  address : <address>
 
-### Local
+(repeat)
+```
 
-A `config.ini` file may be placed in a resume data directory with any of the
-global settings. Additionally a SKILLS_LAYOUT setting can be used to layout the
-order of groups in the Skills section.
+### Training.yaml
 
-  - SKILLS_LAYOUT
-    * Enter a pipe and comma separated string denoting the columns and order of
-      headers in the "Skills" section. For example:
-         `engineering, programming | writing, data analysis | software, fabrication`
-      This tells it to create 3 columns with the order of the headings as listed.
-      The headings must match those listed in the `Skills.yaml` file.
+```yaml
+<title> :
+  description : <description>
 
+(repeat)
+```
+
+### Certifications.yaml
+
+```yaml
+<certification name> :
+  <property> : <value>
+
+(repeat)
+```
+
+### Patents.yaml
+
+```yaml
+<patent name> :
+  patent number : <number>
+  issued        : <date>
+  description   : <value>
+
+(repeat)
+```
 
 ## Dependencies
 
-- Jinja2
-- PyYAML
-- click
+- [Jinja2](https://jinja.palletsprojects.com/)
+- [PyYAML](https://pyyaml.org/)
+- [click](https://click.palletsprojects.com/)
