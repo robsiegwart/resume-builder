@@ -255,6 +255,9 @@
                 <span class="dates">{{ pos.dates }}</span>
             </div>
             {% endfor %}
+            {% if details.summary is defined %}
+            <p style="font-size:0.85em;color:#555;margin-top:4px;">{{ details.summary }}</p>
+            {% endif %}
             {% if details['selected achievements'] is defined %}
             <ul class="achievements">
                 {% for item in details['selected achievements'] %}
@@ -311,6 +314,9 @@
                 <span class="extra-title">{{ cert }}</span>
                 {% if details.expiration is defined %}<span class="dates">Exp. {{ details.expiration }}</span>{% endif %}
             </div>
+            {% if details['license number'] is defined %}
+            <div class="extra-detail">License No. {{ details['license number'] }}{% if details.state is defined %} &mdash; {{ details.state }}{% endif %}</div>
+            {% endif %}
         </div>
         {% endfor %}
     </div>
