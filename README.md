@@ -3,7 +3,7 @@
 A Python program to construct a resume based on data stored in YAML files.
 
 The motivation is to easily build different resumes based on modular data. This
-allows several forms of a resume to be generated at once (e.g. PDF, text, HTML),
+allows several forms of a resume to be generated at once (e.g. HTML, text),
 specifially when content needs to be tailored for a specific aim. Additionally,
 different templates can be used in order to create differently formatted
 versions of a resume from the same content (e.g. regular resume, CV-type resume).
@@ -54,15 +54,14 @@ Options:
   --help  Show this message and exit.
 
 Commands:
-  build  Generate HTML, PDF, and text versions of a resume and save them in...
+  build  Generate HTML and text versions of a resume and save them in...
   init   Scaffold a basic file structure in the current directory.
 ```
 
 ```
 Usage: resumepy build [OPTIONS] SOURCE_DIR
 
-  Generate HTML, PDF, and text versions of a resume and save them in a
-  directory.
+  Generate HTML and text versions of a resume and save them in a directory.
 
 Options:
   --name TEXT     Specify an alternate filename for published files. Default
@@ -187,26 +186,15 @@ defaults:
   - PUBLISH_DIR (Publish)
   - HTML_TEMPLATE (default)
   - TEXT_TEMPLATE (default)
-  - PDF_MARGIN_TOP (0.5in)
-  - PDF_MARGIN_RIGHT (0.5in)
-  - PDF_MARGIN_BOTTOM (0.5in)
-  - PDF_MARGIN_LEFT (0.5in)
-  - PDF_PAGE_SIZE (Letter)
-  - PDF_DISABLE_EXTERNAL_LINKS ("")
   - TITLE ("")
 
 
 ### Local
 
 A `config.ini` file may be placed in a resume data directory with any of the
-global settings or any from wkhtmltopdf. wkhtmltopdf settings must be prefixed
-with 'PDF_'. Additionally a SKILLS_LAYOUT setting can be used to layout the
+global settings. Additionally a SKILLS_LAYOUT setting can be used to layout the
 order of groups in the Skills section.
 
-  - PDF_MARGIN_RIGHT, PDF_MARGIN_LEFT, ...
-    * Set the margins in the pdf file; accepts a string with units (e.g. '0.75in')
-  - PDF_PAGE_SIZE
-    * 'Letter', 'A4', etc.
   - SKILLS_LAYOUT
     * Enter a pipe and comma separated string denoting the columns and order of
       headers in the "Skills" section. For example:
@@ -217,13 +205,6 @@ order of groups in the Skills section.
 
 ## Dependencies
 
-**3rd Party Applications:**
-
- - wkhtmltopdf (wkhtmltopdf.org)
-
-**Python Packages:**
-
 - Jinja2
-- pdfkit
 - PyYAML
 - click

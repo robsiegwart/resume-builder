@@ -12,16 +12,7 @@ DEFAULT_CONFIG = {
         'SOURCES_DIR' :                'Resume Data',
         'PUBLISH_DIR' :                'Publish',
         'HTML_TEMPLATE' :              'default',
-        'HEADER':                      '',
-        'HEADER_DIR':                  'headers',
-        'HEADER_TEMPLATE':             'header_default',
         'TEXT_TEMPLATE' :              'default',
-        'PDF_MARGIN_TOP' :             '0.5in',
-        'PDF_MARGIN_RIGHT' :           '0.5in',
-        'PDF_MARGIN_BOTTOM' :          '0.5in',
-        'PDF_MARGIN_LEFT' :            '0.5in',
-        'PDF_PAGE_SIZE' :              'Letter',
-        'PDF_DISABLE_EXTERNAL_LINKS' : '',
         'TITLE':                       '',
     }
 }

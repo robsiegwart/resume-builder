@@ -1,6 +1,5 @@
 '''
-Create a HTML version of a resume based on YAML data files and convert to PDF
-and text.
+Build HTML and text versions of a resume from YAML data files.
 '''
 
 import os
@@ -8,8 +7,7 @@ from datetime import datetime
 from glob import glob
 from functools import cached_property
 import yaml
-import pdfkit
-from jinja2 import Environment, FileSystemLoader, select_autoescape, UndefinedError
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 import click
 from importlib.metadata import version as _pkg_version
 from .config import *
@@ -110,40 +108,6 @@ class Resume:
 
         self.save_file(self.html, self.output_file + '.html')
         click.echo(f'Saved HTML file to "{self.output_file}.html"')
-
-        # ////////////////////////////// Save PDF \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-        pdf_in = self.output_file + '.html'
-        pdf_out = self.output_file + '.pdf'
-        PDF_OPTIONS = {'quiet':''}
-
-        # Header/footer configuration and directory setup for PDF header
-        if self.CONFIG.get(self.section,'HEADER',fallback=None):
-            header_env = Environment(
-                loader=FileSystemLoader(
-                    [ os.path.join(self.CONFIG.get(self.section,'TEMPLATES_DIR'), 'html', self.CONFIG.get(self.section, 'HEADER_DIR')) ]),
-                autoescape=select_autoescape(['html']),
-                trim_blocks=True
-            )
-
-            header_template = header_env.get_template(self.CONFIG.get(self.section,'HEADER_TEMPLATE') + '.html')
-            header = header_template.render({'name': self.context['Header']['name']})
-            header_save_file = os.path.join(
-                self.out_dir,
-                self.CONFIG.get(self.section,'HEADER_TEMPLATE') + '.html')
-            
-            save = self.save_file(header, header_save_file)
-            if save:
-                click.echo(f'Using generated header file for PDF:\n    "{header_save_file}".\n')
-            
-            PDF_OPTIONS['header-html'] = header_save_file
-
-        for k,v in self.CONFIG.items(self.section):
-            if k.startswith('pdf'):
-                key = k.replace('pdf_', '').replace('_', '-')
-                PDF_OPTIONS[key] = v
-
-        pdfkit.from_file(pdf_in, pdf_out, options=PDF_OPTIONS)
-        click.echo(f'Saved PDF file to "{pdf_out}"')
 
         # ////////////////////////////// Save Text \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
         self.save_file(self.text, self.output_file + '.txt')

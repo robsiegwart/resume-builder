@@ -12,7 +12,7 @@ def cli():
     pass
 
 
-@cli.command(help='Generate HTML, PDF, and text versions of a resume and save them in a directory.')
+@cli.command(help='Generate HTML and text versions of a resume and save them in a directory.')
 @click.argument('source_dir')
 @click.option('--name', default=None, help='Specify an alternate filename for published files. Default is SOURCE_DIR.')
 @click.option('--section', default='DEFAULT', help='The config section to use from the local config.ini file. Default is "DEFAULT"')
