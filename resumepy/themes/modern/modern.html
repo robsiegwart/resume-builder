@@ -113,6 +113,13 @@
             font-weight: bold;
         }
 
+        .exp-summary {
+            font-size: 0.88em;
+            color: #444;
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+
         /* ---------- Skills ---------- */
 
         .skill-row {
@@ -126,7 +133,7 @@
         .skill-label {
             font-size: 0.85em;
             color: #555;
-            min-width: 120px;
+            min-width: 80px;
         }
 
         .skill-tag {
@@ -256,7 +263,7 @@
             </div>
             {% endfor %}
             {% if details.summary is defined %}
-            <p style="font-size:0.85em;color:#555;margin-top:4px;">{{ details.summary }}</p>
+            <p class="exp-summary">{{ details.summary }}</p>
             {% endif %}
             {% if details['selected achievements'] is defined %}
             <ul class="achievements">
@@ -294,10 +301,9 @@
         {% for degree, details in context.Education.items() %}
         <div class="edu-entry">
             <div class="edu-row">
-                <span class="school-name">{{ details.school }}</span>
+                <span><strong>{{ degree }}</strong> &mdash; {{ details.school }}{% if details.address %}, <span class="degree-location">{{ details.address }}</span>{% endif %}</span>
                 <span class="dates">{{ details.date }}</span>
             </div>
-            <div class="degree-detail"><strong>{{ degree }}</strong>{% if details.address %} &mdash; <span class="degree-location">{{ details.address }}</span>{% endif %}</div>
         </div>
         {% endfor %}
     </div>
@@ -311,12 +317,9 @@
         {% for cert, details in context.Certifications.items() %}
         <div class="extra-entry">
             <div class="edu-row">
-                <span class="extra-title">{{ cert }}</span>
+                <span><span class="extra-title">{{ cert }}</span>{% if details['license number'] is defined %} &mdash; License No. {{ details['license number'] }}{% if details.state is defined %}, {{ details.state }}{% endif %}{% endif %}</span>
                 {% if details.expiration is defined %}<span class="dates">Exp. {{ details.expiration }}</span>{% endif %}
             </div>
-            {% if details['license number'] is defined %}
-            <div class="extra-detail">License No. {{ details['license number'] }}{% if details.state is defined %} &mdash; {{ details.state }}{% endif %}</div>
-            {% endif %}
         </div>
         {% endfor %}
     </div>
@@ -346,12 +349,9 @@
         {% for patent, details in context.Patents.items() %}
         <div class="company">
             <div class="company-row">
-                <span class="company-name">{{ patent }}</span>
+                <span><span class="company-name">{{ patent }}</span>{% if details['patent number'] is defined %} &mdash; No. {{ details['patent number'] }}{% endif %}</span>
                 {% if details.issued is defined %}<span class="dates">Issued {{ details.issued }}</span>{% endif %}
             </div>
-            {% if details['patent number'] is defined %}
-            <div class="degree-detail">No. {{ details['patent number'] }}</div>
-            {% endif %}
             {% if details.description is defined %}
             <ul class="achievements"><li>{{ details.description }}</li></ul>
             {% endif %}
