@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{{ context.Header.name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="all" href="{{ context.TEMPLATE_DIR_REL }}\html\css\bootstrap.min.css" />
+    <style>
+        /* General styles */
+        body { font-family: 'Cambria', 'Times New Roman', Times, serif; font-size: 12pt; }
+        .bold { font-weight: bold; }
+        .small_caps { font-variant: small-caps; }
+        .no_spacing p { margin-top: 0; margin-bottom: 0; }
+        .address_info { font-size: 0.85em; }
+        
+        section > h2 { border-bottom: solid 1px #000; font-variant: small-caps; font-size: 14pt; font-weight: bold; }
+        section { margin-bottom: 2em; }
+        header { text-align: center; }
+        ul { padding-top: 0; padding-bottom: 0; margin-top: 0; margin-bottom: 0; }
+
+        /* Header styles */
+        header > h1 { font-size: 16pt; }
+        /* header div { font-size: 0.9em; } */
+
+        /* Experience */
+        .company_line { font-weight: bold; margin-bottom: 0.5em; }
+        .position_title { text-transform: uppercase; font-style: italic; }
+        .exp_row { margin-bottom: 1em; }
+        .details_summary { margin: 1em 0; }
+        .positions p { margin: 0; padding: 0; }
+
+        /* Skills section */
+        .skills ul { padding: 0; margin: 0; }
+        .skills li { padding: 0 1em 0 1em; display: inline-block; text-indent: -1em; }
+        .skills_category_heading { margin-bottom: 0.05in; text-transform: uppercase; font-weight: bold; font-size: 0.75em;
+                                   letter-spacing: 0.1em; }
+        .inner_title { margin-top: 1em; }
+        
+        /* General table properties */
+        table { border: none; width: 100%; table-layout: fixed; margin-bottom: 0.1in; }
+        td { vertical-align: top; }
+        td:last-child { padding-bottom: none; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>{{ context.Header.name }}</h1>
+        <div class="no_spacing">
+            <div>
+            {% for item,value in context.Header['contact info'].items() %}
+                {% if 'address' in item %}
+                    <p>{{ value }}</p>
+                {% else %}
+                    <p><span class="small_caps">{{ item }}</span>: {{ value }}</p>
+                {% endif %}
+            {% endfor %}
+            </div>
+        </div>
+    </header>
+    <main>
+        <section>
+            <h2>Education</h2>
+            <div class="no_spacing">
+                <p class="bold">{{ context.Education.degree }}, {{ context.Education.date }}</p>
+                <p>{{ context.Education.school }} &mdash; {{ context.Education.address }}</p>
+            </div>
+        </section>
+        
+        <section>
+            <h2>Professional Experience</h2>
+            {% for company, details in context.Experience.items() %}
+                <div {% if not loop.last%}class="exp_row"{% endif %}>
+                    <div class="company_line"><span>{{ company }}</span> &mdash; {{ details.location }}</div>
+                    
+                    <div class="positions">
+                    {% for position, dates in details.positions.items() %}
+                        <div class="clearfix no_spacing">
+                            <p class="float-left position_title">{{ position }}</p>
+                            <p class="float-right">{{ dates.dates }}</p>
+                        </div>
+                    {% endfor %}
+                    </div>
+                    
+                    {% if details.summary is defined %}
+                    <div class="details_summary">{{ details.summary }}</div>
+                    {% endif %}
+                    
+                    {% if details['selected achievements'] is defined %}
+                    <div>
+                        <ul>
+                            {% for each in details['selected achievements'] %}
+                            <li>{{ each }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </section>
+        
+        <section>
+            <h2>Certifications</h2>
+            <div class="no_spacing">
+            {% for cert, details in context.Certifications.items() %}
+                <p class="bold">{{ cert }}</p>
+                <p>License no: {{ details['license number'] }}, Expiration: {{ details.expiration }}</p>
+            {% endfor %}
+            </div>
+        </section>
+        
+        <section>
+            <h2>Training</h2>
+            <div class="no_spacing">
+            {% for training, details in context.Training.items() %}
+                <p class="bold">{{ training }}</p>
+                <p>{{ details.description }}</p>
+            {% endfor %}
+            </div>
+        </section>
+        
+        <section>
+            <h2>Patents</h2>
+            <div class="no_spacing">
+            {% for patent, details in context.Patents.items() %}
+                <p><span class="bold">"{{ patent }},"</span> Patent number: {{ details['patent number'] }}, Issued: {{ details.issued }}.</p>
+            {% endfor %}
+            </div>
+        </section>
+        
+        <section>
+            <h2>Skills and Capabilities</h2>
+            <table class="skills">
+                <tr>
+            {% if context.skills_layout is defined %}
+                {% for column in context.skills_layout %}
+                <td>    
+                    {% for item in column %}
+                    <p class="skills_category_heading {% if loop.index > 1 %}inner_title{% endif %}">{{ item }}</p>
+                    <ul>
+                        {% for v in context.Skills[item] %}
+                        <li>{{ v }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endfor %}
+                </td>
+                {% endfor %}
+
+            {% else %}
+                {% for k,v in context.Skills.items() %}
+                <td>
+                    <p class="skills_category_heading">{{ k }}</p>
+                    <ul>
+                        {% for skill in v %}
+                        <li>{{ skill }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+                {% endfor %}
+            {% endif %}
+            </tr>
+            </table>
+        </section>
+    </main>
+</body>
+</html>

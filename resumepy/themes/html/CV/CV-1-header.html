@@ -1,0 +1,13 @@
+<div class="headerContent" style="display:none">
+    Robert S Siegwart, Page [Page]
+    <hr />
+</div>
+<script type="text/javascript">
+  var headerCheck = function() {
+    var x=document.location.search.substring(1).split('&');
+    for (var i in x) {
+      if(x[i] !== "page=1")
+        document.getElementsByClassName("headerContent")[0].style.display = "block";
+     }
+  }();
+</script>

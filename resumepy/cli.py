@@ -21,6 +21,7 @@ def build(source_dir, name, section):
     resume.publish()
 
 
-@cli.command(help='Scaffold a basic file structure in the current directory.')
-def init(*args,**kwargs):
-    quickstart.init(*args,**kwargs)
+@cli.command(help='Create a sample resume folder in the current directory.')
+@click.argument('name', default='resume')
+def init(name):
+    quickstart.init(name)
