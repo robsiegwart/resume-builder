@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ context.Header.name }}</title>
+    <style>
+        :root {
+            --accent:       {{ palette.accent }};
+            --accent-dark:  {{ palette.accent_dark }};
+            --accent-light: {{ palette.accent_light }};
+            --shade:        {{ palette.shade }};
+            --shade-border: {{ palette.shade_border }};
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #333;
+            padding: 0.4in 0.55in;
+        }
+
+        /* --- Header --- */
+
+        h1.name {
+            font-size: 2em;
+            font-weight: 700;
+            color: #111;
+            line-height: 1.2;
+            margin-bottom: 6px;
+        }
+
+        .header_info { font-size: 0.83em; color: #555; }
+
+        .divider { color: var(--accent); font-weight: bold; }
+
+        hr {
+            border: none;
+            border-top: 2px solid var(--accent);
+            margin: 8px 0 14px;
+        }
+
+        .title {
+            font-size: 1.1em;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        /* --- Section tables --- */
+
+        table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+            margin-bottom: 0.1in;
+        }
+
+        td { vertical-align: top; }
+
+        td:nth-child(1) {
+            width: 1.25in;
+            padding-right: 0.2in;
+            text-align: right;
+        }
+
+        td:nth-child(1) h2 {
+            font-size: 1em;
+            font-weight: 700;
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* --- Skills --- */
+
+        .skills ul { list-style: none; padding: 0; margin: 0; }
+
+        .skills li {
+            display: inline-block;
+            background: var(--accent-light);
+            color: var(--accent-dark);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin: 2px 2px 2px 0;
+            white-space: nowrap;
+        }
+
+        .skills_category_heading {
+            margin-bottom: 0.05in;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 0.75em;
+            letter-spacing: 0.1em;
+            color: #555;
+        }
+
+        .inner_title { margin-top: 1em; }
+
+        /* --- Experience --- */
+
+        .exp_row { margin-bottom: 0.1em; }
+
+        .adjust1 { margin-top: 2em; }
+
+        .company_line {
+            background-color: var(--shade);
+            border-left: 3px solid var(--accent);
+            border-radius: 2px;
+            padding-left: 0.1in;
+        }
+
+        .company_line span { font-weight: 700; font-size: 1.05em; }
+
+        .positions { margin: 0.1in 0 0 0; }
+        .positions p { padding: 0; margin: 0; }
+
+        .position_title {
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 0.88em;
+        }
+
+        .exp_summary { margin: 0.1in 0; font-size: 0.88em; color: #555; }
+
+        ul { padding-left: 1.5em; margin: 4px 0; }
+
+        li { font-size: 0.88em; color: #444; margin-bottom: 2px; }
+
+        /* --- Education / Certifications / Training / Patents --- */
+
+        .single p { padding: 0; margin: 0; }
+
+        .bold { font-weight: 700; }
+
+        /* --- Print --- */
+
+        @page { margin: 0; }
+
+        @media print {
+            body { padding: 0.4in 0.55in; }
+
+            .exp_row,
+            .adjust1,
+            .single tr {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            td:nth-child(1) h2,
+            .company_line {
+                page-break-after: avoid;
+                break-after: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <h1 class="name">{{ context.Header.name }}</h1>
+        <div class="header_info">
+            {% for item,value in context.Header['contact info'].items() %}
+                {% if item == 'address' %}
+                    {{ value }}
+                {% else %}
+                    <strong>{{ item }}</strong> {{ value }}
+                {% endif %}
+                {% if not loop.last %}
+                    &nbsp;<span class="divider">/</span>&nbsp;
+                {% endif %}
+            {% endfor %}
+        </div>
+    </header>
+    <hr>
+    <main>
+        {% if context.title is sameas true %}<p class="title">{{ context.Header.title }}</p>{% endif %}
+
+
+        {# ---- Section macros ---- #}
+
+        {% macro render_Performance_profile() %}
+        {% if context.Performance_profile is defined %}
+        <table class="performance_profile">
+            <tr>
+                <td><h2 id="performance_profile">Performance Profile</h2></td>
+                <td>{{ context.Performance_profile }}</td>
+            </tr>
+        </table>
+        {% endif %}
+        {% endmacro %}
+
+        {% macro render_Skills() %}
+        {% if context.Skills is defined %}
+        <table class="skills">
+            <tr>
+                <td><h2 id="skills">Skills and Capabilities</h2></td>
+
+                {% if context.skills_layout is defined %}
+                    {% for column in context.skills_layout %}
+                    <td>
+                        {% for item in column %}
+                        <p class="skills_category_heading {% if loop.index > 1 %}inner_title{% endif %}">{{ item }}</p>
+                        <ul>
+                            {% for v in context.Skills[item] %}
+                            <li>{{ v }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endfor %}
+                    </td>
+                    {% endfor %}
+
+                {% else %}
+                    {% for k,v in context.Skills.items() %}
+                    <td>
+                        <p class="skills_category_heading">{{ k }}</p>
+                        <ul>
+                            {% for skill in v %}
+                            <li>{{ skill }}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    {% endfor %}
+                {% endif %}
+            </tr>
+        </table>
+        {% endif %}
+        {% endmacro %}
+
+        {% macro render_Experience() %}
+        {% if context.Experience is defined %}
+        <table class="experience">
+            {% for company, details in context.Experience.items() %}
+            <tr>
+                <td>
+                    {% if loop.first %}
+                    <h2 id="experience">Experience</h2></td>
+                    {% endif %}
+                <td>
+                    <div class="{% if not loop.last%}exp_row{% endif %}{% if loop.last %} adjust1{% endif %}">
+                        <div class="company_line"><span>{{ company }}</span> &mdash; {{ details.location }}</div>
+                        <div class="positions">
+                        {% for position, dates in details.positions.items() %}
+                            <p><span class="position_title">{{ position }}</span> <span class="divider">/</span> {{ dates.dates }}</p>
+                        {% endfor %}
+                        </div>
+                        {% if details.summary is defined %}
+                        <div class="exp_summary">{{ details.summary }}</div>
+                        {% endif %}
+                        {% if details['selected achievements'] is defined %}
+                        <div>
+                            <ul>
+                                {% for each in details['selected achievements'] %}
+                                <li>{{ each }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+        {% endmacro %}
+
+        {% macro render_Education() %}
+        {% if context.Education is defined %}
+        <table class="education single">
+            <tr>
+                <td><h2 id="education">Education</h2></td>
+                {% for degree, details in context.Education.items() %}
+                <td>
+                    <p class="bold">{{ degree }}, {{ details.date }}</p>
+                    <p>{{ details.school }} &mdash; {{ details.address }}</p>
+                    {% if details.gpa is defined %}GPA: {{ details.gpa }}{% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+        </table>
+        {% endif %}
+        {% endmacro %}
+
+        {% macro render_Certifications() %}
+        {% if context.Certifications is defined %}
+        <table class="certifications single">
+            <tr>
+                <td><h2 id="certifications">Certifications</h2></td>
+                <td>
+                    {% for cert, details in context.Certifications.items() %}
+                    <p class="bold">{{ cert }}</p>
+                    <p>License no: {{ details['license number'] }}, Expiration: {{ details.expiration }}</p>
+                    {% endfor %}
+                </td>
+            </tr>
+        </table>
+        {% endif %}
+        {% endmacro %}
+
+        {% macro render_Training() %}
+        {% if context.Training is defined %}
+        <table class="training single">
+            <tr>
+                <td><h2 id="training">Training</h2></td>
+                <td>
+                    {% for training, details in context.Training.items() %}
+                    <p class="bold">{{ training }}</p>
+                    <p>{{ details.description }}</p>
+                    {% endfor %}
+                </td>
+            </tr>
+        </table>
+        {% endif %}
+        {% endmacro %}
+
+        {% macro render_Patents() %}
+        {% if context.Patents is defined %}
+        <table class="patents single">
+            <tr>
+                <td><h2 id="patents">Patents</h2></td>
+                <td>
+                    {% for patent, details in context.Patents.items() %}
+                    <p><span class="bold">"{{ patent }},"</span> Patent number: {{ details['patent number'] }}, Issued: {{ details.issued }}.</p>
+                    {% endfor %}
+                </td>
+            </tr>
+        </table>
+        {% endif %}
+        {% endmacro %}
+
+        {# ---- Render sections in order ---- #}
+
+        {% set default_order = ['Performance_profile', 'Experience', 'Skills', 'Education', 'Certifications', 'Training', 'Patents'] %}
+        {% set section_order = context.Header.sections if context.Header.sections is defined else default_order %}
+        {% for section in section_order %}
+            {% if section == 'Performance_profile' %}{{ render_Performance_profile() }}
+            {% elif section == 'Experience' %}{{ render_Experience() }}
+            {% elif section == 'Skills' %}{{ render_Skills() }}
+            {% elif section == 'Education' %}{{ render_Education() }}
+            {% elif section == 'Certifications' %}{{ render_Certifications() }}
+            {% elif section == 'Training' %}{{ render_Training() }}
+            {% elif section == 'Patents' %}{{ render_Patents() }}
+            {% elif context[section] is defined %}
+            <table>
+                <tr>
+                    <td><h2>{{ section | replace('_', ' ') }}</h2></td>
+                    <td>{{ context[section] | markdown }}</td>
+                </tr>
+            </table>
+            {% endif %}
+        {% endfor %}
+
+        {# Catch-all: render any sections present in context but not in section_order #}
+        {% set skip = ['Header', 'skills_layout'] %}
+        {% for key, value in context.items() %}
+        {% if key not in section_order and key not in skip and value is string %}
+        <table>
+            <tr>
+                <td><h2>{{ key | replace('_', ' ') }}</h2></td>
+                <td>{{ value | markdown }}</td>
+            </tr>
+        </table>
+        {% endif %}
+        {% endfor %}
+    </main>
+</body>
+</html>
