@@ -173,7 +173,9 @@
         {% if context.title is sameas true %}<p class="title">{{ context.Header.title }}</p>{% endif %}
 
 
-        <!-- PERFORMANCE PROFILE -->
+        {# ---- Section macros ---- #}
+
+        {% macro render_Performance_profile() %}
         {% if context.Performance_profile is defined %}
         <table class="performance_profile">
             <tr>
@@ -182,9 +184,9 @@
             </tr>
         </table>
         {% endif %}
+        {% endmacro %}
 
-
-        <!-- SKILLS -->
+        {% macro render_Skills() %}
         {% if context.Skills is defined %}
         <table class="skills">
             <tr>
@@ -219,9 +221,9 @@
             </tr>
         </table>
         {% endif %}
+        {% endmacro %}
 
-
-        <!-- EXPERIENCE -->
+        {% macro render_Experience() %}
         {% if context.Experience is defined %}
         <table class="experience">
             {% for company, details in context.Experience.items() %}
@@ -256,9 +258,9 @@
             {% endfor %}
         </table>
         {% endif %}
+        {% endmacro %}
 
-
-        <!-- EDUCATION -->
+        {% macro render_Education() %}
         {% if context.Education is defined %}
         <table class="education single">
             <tr>
@@ -273,9 +275,9 @@
             </tr>
         </table>
         {% endif %}
+        {% endmacro %}
 
-
-        <!-- CERTIFICATIONS -->
+        {% macro render_Certifications() %}
         {% if context.Certifications is defined %}
         <table class="certifications single">
             <tr>
@@ -289,9 +291,9 @@
             </tr>
         </table>
         {% endif %}
+        {% endmacro %}
 
-
-        <!-- TRAINING -->
+        {% macro render_Training() %}
         {% if context.Training is defined %}
         <table class="training single">
             <tr>
@@ -305,9 +307,9 @@
             </tr>
         </table>
         {% endif %}
+        {% endmacro %}
 
-
-        <!-- PATENTS -->
+        {% macro render_Patents() %}
         {% if context.Patents is defined %}
         <table class="patents single">
             <tr>
@@ -320,6 +322,42 @@
             </tr>
         </table>
         {% endif %}
+        {% endmacro %}
+
+        {# ---- Render sections in order ---- #}
+
+        {% set default_order = ['Performance_profile', 'Experience', 'Skills', 'Education', 'Certifications', 'Training', 'Patents'] %}
+        {% set section_order = context.Header.sections if context.Header.sections is defined else default_order %}
+        {% for section in section_order %}
+            {% if section == 'Performance_profile' %}{{ render_Performance_profile() }}
+            {% elif section == 'Experience' %}{{ render_Experience() }}
+            {% elif section == 'Skills' %}{{ render_Skills() }}
+            {% elif section == 'Education' %}{{ render_Education() }}
+            {% elif section == 'Certifications' %}{{ render_Certifications() }}
+            {% elif section == 'Training' %}{{ render_Training() }}
+            {% elif section == 'Patents' %}{{ render_Patents() }}
+            {% elif context[section] is defined %}
+            <table>
+                <tr>
+                    <td><h2>{{ section | replace('_', ' ') }}</h2></td>
+                    <td>{{ context[section] | markdown }}</td>
+                </tr>
+            </table>
+            {% endif %}
+        {% endfor %}
+
+        {# Catch-all: render any sections present in context but not in section_order #}
+        {% set skip = ['Header', 'skills_layout'] %}
+        {% for key, value in context.items() %}
+        {% if key not in section_order and key not in skip and value is string %}
+        <table>
+            <tr>
+                <td><h2>{{ key | replace('_', ' ') }}</h2></td>
+                <td>{{ value | markdown }}</td>
+            </tr>
+        </table>
+        {% endif %}
+        {% endfor %}
     </main>
 </body>
 </html>

@@ -32,7 +32,7 @@
 
         .header .summary {
             font-size: 0.9em;
-            color: #666;
+            color: #444;
             line-height: 1.6;
         }
 
@@ -91,7 +91,8 @@
             margin-left: 16px;
         }
 
-        .achievements {
+        .achievements,
+        .extra-detail ul {
             list-style: none;
             margin-top: 6px;
         }
@@ -105,7 +106,16 @@
             line-height: 1.5;
         }
 
-        .achievements li::before {
+        .extra-detail ul li {
+            position: relative;
+            padding-left: 14px;
+            color: #444;
+            margin-bottom: 3px;
+            line-height: 1.5;
+        }
+
+        .achievements li::before,
+        .extra-detail ul li::before {
             content: '-';
             position: absolute;
             left: 0;
@@ -131,7 +141,7 @@
         }
 
         .skill-label {
-            font-size: 0.85em;
+            font-size: 0.88em;
             color: #555;
             min-width: 80px;
         }
@@ -161,7 +171,7 @@
         }
 
         .degree-detail {
-            font-size: 0.85em;
+            font-size: 0.88em;
             margin-top: 2px;
         }
 
@@ -177,7 +187,7 @@
         .extra-title { font-weight: 700; }
 
         .extra-detail {
-            font-size: 0.85em;
+            font-size: 0.88em;
             color: #555;
             margin-top: 2px;
         }
@@ -245,7 +255,9 @@
         {% endif %}
     </div>
 
-    <!-- Work Experience -->
+    {# ---- Section macros ---- #}
+
+    {% macro render_Experience() %}
     {% if context.Experience is defined %}
     <div class="section">
         <h2>Work Experience</h2>
@@ -276,8 +288,9 @@
         {% endfor %}
     </div>
     {% endif %}
+    {% endmacro %}
 
-    <!-- Skills -->
+    {% macro render_Skills() %}
     {% if context.Skills is defined %}
     <div class="section">
         <h2>Skills</h2>
@@ -292,8 +305,9 @@
         {% endfor %}
     </div>
     {% endif %}
+    {% endmacro %}
 
-    <!-- Education -->
+    {% macro render_Education() %}
     {% if context.Education is defined %}
     <div class="section">
         <h2>Education</h2>
@@ -308,8 +322,9 @@
         {% endfor %}
     </div>
     {% endif %}
+    {% endmacro %}
 
-    <!-- Certifications -->
+    {% macro render_Certifications() %}
     {% if context.Certifications is defined %}
     <div class="section">
         <h2>Certifications</h2>
@@ -324,8 +339,9 @@
         {% endfor %}
     </div>
     {% endif %}
+    {% endmacro %}
 
-    <!-- Training -->
+    {% macro render_Training() %}
     {% if context.Training is defined %}
     <div class="section">
         <h2>Training</h2>
@@ -340,8 +356,9 @@
         {% endfor %}
     </div>
     {% endif %}
+    {% endmacro %}
 
-    <!-- Patents -->
+    {% macro render_Patents() %}
     {% if context.Patents is defined %}
     <div class="section">
         <h2>Patents</h2>
@@ -359,12 +376,47 @@
         {% endfor %}
     </div>
     {% endif %}
+    {% endmacro %}
+
+    {# ---- Render sections in order ---- #}
+
+    {% set default_order = ['Experience', 'Skills', 'Education', 'Certifications', 'Training', 'Patents'] %}
+    {% set section_order = context.Header.sections if context.Header.sections is defined else default_order %}
+    {% for section in section_order %}
+        {% if section == 'Experience' %}{{ render_Experience() }}
+        {% elif section == 'Skills' %}{{ render_Skills() }}
+        {% elif section == 'Education' %}{{ render_Education() }}
+        {% elif section == 'Certifications' %}{{ render_Certifications() }}
+        {% elif section == 'Training' %}{{ render_Training() }}
+        {% elif section == 'Patents' %}{{ render_Patents() }}
+        {% elif context[section] is defined %}
+        <div class="section">
+            <h2>{{ section | replace('_', ' ') }}</h2>
+            <hr class="section-rule">
+            <div class="extra-detail">{{ context[section] | markdown }}</div>
+        </div>
+        {% endif %}
+    {% endfor %}
+
+    {# Catch-all: render any sections present in context but not in section_order #}
+    {% set skip = ['Header', 'Performance_profile', 'skills_layout'] %}
+    {% for key, value in context.items() %}
+    {% if key not in section_order and key not in skip and value is string %}
+    <div class="section">
+        <h2>{{ key | replace('_', ' ') }}</h2>
+        <hr class="section-rule">
+        <div class="extra-detail">{{ value | markdown }}</div>
+    </div>
+    {% endif %}
+    {% endfor %}
 
     <!-- Footer -->
     <div class="footer">
-        <span>Email: <strong>{{ context.Header['contact info'].email }}</strong></span>
-        <span>Phone: <strong>{{ context.Header['contact info'].cell }}</strong></span>
-        <span>Website: <strong>{{ context.Header['contact info'].web }}</strong></span>
+        {% for item, value in context.Header['contact info'].items() %}
+        {% if item != 'address' %}
+        <span>{{ item | title }}: <strong>{{ value }}</strong></span>
+        {% endif %}
+        {% endfor %}
     </div>
 
 </div>

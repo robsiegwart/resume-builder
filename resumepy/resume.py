@@ -5,7 +5,9 @@ Build a resume from YAML data files using a Jinja2 theme template.
 from pathlib import Path
 from functools import cached_property
 import yaml
+import mistune
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from markupsafe import Markup
 import click
 from importlib.metadata import version as _pkg_version
 
@@ -37,8 +39,16 @@ class Resume:
         self._load_yaml(self.source_dir)
         if variant:
             self._load_yaml(self.source_dir / variant)
+        self._normalize_sections()
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
+
+    def _normalize_sections(self):
+        sections = self.context.get('Header', {}).get('sections')
+        if sections:
+            self.context['Header']['sections'] = [
+                s.replace('-', '_').replace(' ', '_') for s in sections
+            ]
 
     def _load_yaml(self, directory):
         for f in sorted(Path(directory).glob('*.yaml')):
@@ -61,11 +71,14 @@ class Resume:
     @cached_property
     def env(self):
         theme_dir, _, suffix = self._theme_info
-        return Environment(
+        env = Environment(
             loader=FileSystemLoader(str(theme_dir)),
             autoescape=select_autoescape(['html']) if suffix == '.html' else False,
             trim_blocks=True
         )
+        _md = mistune.create_markdown(plugins=['strikethrough'])
+        env.filters['markdown'] = lambda text: Markup(_md(text)) if isinstance(text, str) else Markup('')
+        return env
 
     def render(self):
         _, template_name, _ = self._theme_info
