@@ -76,7 +76,8 @@ class Resume:
         env = Environment(
             loader=FileSystemLoader(str(theme_dir)),
             autoescape=select_autoescape(['html']) if suffix == '.html' else False,
-            trim_blocks=True
+            trim_blocks=True,
+            lstrip_blocks=True
         )
         _md = mistune.create_markdown(plugins=['strikethrough'])
         env.filters['markdown'] = lambda text: Markup(_md(text)) if isinstance(text, str) else Markup('')
