@@ -6,6 +6,7 @@ from pathlib import Path
 from functools import cached_property
 import yaml
 import mistune
+from resumepy.palettes import PALETTES, DEFAULT_PALETTE
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from markupsafe import Markup
 import click
@@ -25,11 +26,12 @@ class Resume:
     :param output_dir:  Directory to write the output file. Default: 'dist'.
     :param name:        Output filename base. Defaults to the source folder name.
     '''
-    def __init__(self, source_dir, variant=None, theme='default', output_dir='dist', name=None):
+    def __init__(self, source_dir, variant=None, theme='default', output_dir='dist', name=None, palette=DEFAULT_PALETTE):
         self.source_dir = Path(source_dir)
         self.variant = variant
         self.theme = theme
         self.output_dir = Path(output_dir)
+        self.palette = PALETTES[palette]
         base = name or self.source_dir.resolve().name
         self.name = f'{base}-{variant}' if (variant and not name) else base
 
@@ -82,7 +84,7 @@ class Resume:
 
     def render(self):
         _, template_name, _ = self._theme_info
-        return self.env.get_template(template_name).render(context=self.context)
+        return self.env.get_template(template_name).render(context=self.context, palette=self.palette)
 
     def publish(self):
         _, _, suffix = self._theme_info

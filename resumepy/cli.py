@@ -5,6 +5,7 @@ Command-line interface.
 import click
 from resumepy import Resume
 from resumepy import quickstart
+from resumepy.palettes import PALETTES, DEFAULT_PALETTE
 
 
 @click.group()
@@ -18,8 +19,9 @@ def cli():
 @click.option('--name', default=None, help='Output filename base. Defaults to the source folder name.')
 @click.option('--theme', default='default', help='Bundled theme name or path to a custom HTML template. Default: default.')
 @click.option('--output', default='dist', help='Output directory. Default: dist.')
-def build(source_dir, variant, name, theme, output):
-    resume = Resume(source_dir, variant=variant, theme=theme, output_dir=output, name=name)
+@click.option('--palette', default=DEFAULT_PALETTE, type=click.Choice(list(PALETTES)), show_default=True, help='Color palette.')
+def build(source_dir, variant, name, theme, output, palette):
+    resume = Resume(source_dir, variant=variant, theme=theme, output_dir=output, name=name, palette=palette)
     resume.publish()
 
 

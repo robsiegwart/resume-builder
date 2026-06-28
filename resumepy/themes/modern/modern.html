@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ context.Header.name }}</title>
     <style>
+        :root {
+            --accent:       {{ palette.accent }};
+            --accent-dark:  {{ palette.accent_dark }};
+            --accent-light: {{ palette.accent_light }};
+            --shade:        {{ palette.shade }};
+            --shade-border: {{ palette.shade_border }};
+        }
+
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
@@ -49,7 +57,7 @@
 
         .section-rule {
             border: none;
-            border-top: 2px solid #c0392b;
+            border-top: 2px solid var(--accent);
             margin-bottom: 14px;
         }
 
@@ -75,7 +83,7 @@
         .position-title {
             font-weight: 700;
             font-size: 0.88em;
-            color: #c0392b;
+            color: var(--accent);
         }
 
         .location {
@@ -119,7 +127,7 @@
             content: '-';
             position: absolute;
             left: 0;
-            color: #c0392b;
+            color: var(--accent);
             font-weight: bold;
         }
 
@@ -147,8 +155,8 @@
         }
 
         .skill-tag {
-            background: #fce8e8;
-            color: #922b21;
+            background: var(--accent-light);
+            color: var(--accent-dark);
             padding: 2px 10px;
             border-radius: 20px;
             font-size: 0.8em;
@@ -197,8 +205,8 @@
         .footer {
             display: flex;
             justify-content: space-between;
-            background: #f5f5f5;
-            border-top: 1px solid #e0e0e0;
+            background: var(--shade);
+            border-top: 1px solid var(--shade-border);
             margin: 28px -52px 0;
             padding: 14px 52px;
             font-size: 0.83em;
