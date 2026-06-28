@@ -93,3 +93,15 @@ class Resume:
         click.echo(f'Output will be written to "{self.output_dir}/"')
         out.write_text(self.render(), encoding='utf-8')
         click.echo(f'Saved to "{out}"')
+        return out
+
+    def publish_pdf(self, html_path: Path):
+        from playwright.sync_api import sync_playwright
+        pdf_path = html_path.with_suffix('.pdf')
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            page = browser.new_page()
+            page.goto(html_path.resolve().as_uri())
+            page.pdf(path=str(pdf_path), print_background=True)
+            browser.close()
+        click.echo(f'PDF saved to "{pdf_path}"')

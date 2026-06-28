@@ -22,7 +22,8 @@ def cli():
 @click.option('--theme', default='default', help='Bundled theme name or path to a custom HTML template. Default: default.')
 @click.option('--output', default='dist', help='Output directory. Default: dist.')
 @click.option('--palette', default=DEFAULT_PALETTE, type=click.Choice(list(PALETTES)), show_default=True, help='Color palette.')
-def build(source_dir, variant, name, theme, output, palette):
+@click.option('--pdf', is_flag=True, default=False, help='Also export a PDF via headless Chromium (HTML themes only).')
+def build(source_dir, variant, name, theme, output, palette, pdf):
     source_path = Path(source_dir)
     if not source_path.is_dir():
         raise click.BadParameter(f'"{source_dir}" is not a valid directory.', param_hint='SOURCE_DIR')
@@ -33,7 +34,9 @@ def build(source_dir, variant, name, theme, output, palette):
     if not theme_path.is_file() and not (THEMES_DIR / theme).is_dir():
         raise click.BadParameter(f'"{theme}" is not a built-in theme or a valid template file path.', param_hint='--theme')
     resume = Resume(source_dir, variant=variant, theme=theme, output_dir=output, name=name, palette=palette)
-    resume.publish()
+    out = resume.publish()
+    if pdf:
+        resume.publish_pdf(out)
 
 
 @cli.command(help='Create a sample resume folder in the current directory.')
