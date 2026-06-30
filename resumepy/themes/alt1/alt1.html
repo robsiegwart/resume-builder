@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ context.Header.name }}</title>
+    <title>{{ context.header.name }}</title>
     <style>
         :root {
             --accent:       {{ palette.accent }};
@@ -162,9 +162,9 @@
 <body>
     <!-- HEADER -->
     <header>
-        <h1 class="name">{{ context.Header.name }}</h1>
+        <h1 class="name">{{ context.header.name }}</h1>
         <div class="header_info">
-            {% for item,value in context.Header['contact info'].items() %}
+            {% for item,value in context.header['contact info'].items() %}
                 {% if item == 'address' %}
                     {{ value }}
                 {% else %}
@@ -178,24 +178,24 @@
     </header>
     <hr>
     <main>
-        {% if context.title is sameas true %}<p class="title">{{ context.Header.title }}</p>{% endif %}
+        {% if context.title is sameas true %}<p class="title">{{ context.header.title }}</p>{% endif %}
 
 
         {# ---- Section macros ---- #}
 
         {% macro render_Performance_profile() %}
-        {% if context.Performance_profile is defined %}
+        {% if context.performance_profile is defined %}
         <table class="performance_profile">
             <tr>
                 <td><h2 id="performance_profile">Performance Profile</h2></td>
-                <td>{{ context.Performance_profile }}</td>
+                <td>{{ context.performance_profile }}</td>
             </tr>
         </table>
         {% endif %}
         {% endmacro %}
 
         {% macro render_Skills() %}
-        {% if context.Skills is defined %}
+        {% if context.skills is defined %}
         <table class="skills">
             <tr>
                 <td><h2 id="skills">Skills and Capabilities</h2></td>
@@ -206,7 +206,7 @@
                         {% for item in column %}
                         <p class="skills_category_heading {% if loop.index > 1 %}inner_title{% endif %}">{{ item }}</p>
                         <ul>
-                            {% for v in context.Skills[item] %}
+                            {% for v in context.skills[item] %}
                             <li>{{ v }}</li>
                             {% endfor %}
                         </ul>
@@ -215,7 +215,7 @@
                     {% endfor %}
 
                 {% else %}
-                    {% for k,v in context.Skills.items() %}
+                    {% for k,v in context.skills.items() %}
                     <td>
                         <p class="skills_category_heading">{{ k }}</p>
                         <ul>
@@ -232,9 +232,9 @@
         {% endmacro %}
 
         {% macro render_Experience() %}
-        {% if context.Experience is defined %}
+        {% if context.experience is defined %}
         <table class="experience">
-            {% for company, details in context.Experience.items() %}
+            {% for company, details in context.experience.items() %}
             <tr>
                 <td>
                     {% if loop.first %}
@@ -269,11 +269,11 @@
         {% endmacro %}
 
         {% macro render_Education() %}
-        {% if context.Education is defined %}
+        {% if context.education is defined %}
         <table class="education single">
             <tr>
                 <td><h2 id="education">Education</h2></td>
-                {% for degree, details in context.Education.items() %}
+                {% for degree, details in context.education.items() %}
                 <td>
                     <p class="bold">{{ degree }}, {{ details.date }}</p>
                     <p>{{ details.school }} &mdash; {{ details.address }}</p>
@@ -286,12 +286,12 @@
         {% endmacro %}
 
         {% macro render_Certifications() %}
-        {% if context.Certifications is defined %}
+        {% if context.certifications is defined %}
         <table class="certifications single">
             <tr>
                 <td><h2 id="certifications">Certifications</h2></td>
                 <td>
-                    {% for cert, details in context.Certifications.items() %}
+                    {% for cert, details in context.certifications.items() %}
                     <p class="bold">{{ cert }}</p>
                     <p>License no: {{ details['license number'] }}, Expiration: {{ details.expiration }}</p>
                     {% endfor %}
@@ -302,12 +302,12 @@
         {% endmacro %}
 
         {% macro render_Training() %}
-        {% if context.Training is defined %}
+        {% if context.training is defined %}
         <table class="training single">
             <tr>
                 <td><h2 id="training">Training</h2></td>
                 <td>
-                    {% for training, details in context.Training.items() %}
+                    {% for training, details in context.training.items() %}
                     <p class="bold">{{ training }}</p>
                     <p>{{ details.description }}</p>
                     {% endfor %}
@@ -318,12 +318,12 @@
         {% endmacro %}
 
         {% macro render_Patents() %}
-        {% if context.Patents is defined %}
+        {% if context.patents is defined %}
         <table class="patents single">
             <tr>
                 <td><h2 id="patents">Patents</h2></td>
                 <td>
-                    {% for patent, details in context.Patents.items() %}
+                    {% for patent, details in context.patents.items() %}
                     <p><span class="bold">"{{ patent }},"</span> Patent number: {{ details['patent number'] }}, Issued: {{ details.issued }}.</p>
                     {% endfor %}
                 </td>
@@ -334,20 +334,20 @@
 
         {# ---- Render sections in order ---- #}
 
-        {% set default_order = ['Performance_profile', 'Experience', 'Skills', 'Education', 'Certifications', 'Training', 'Patents'] %}
-        {% set section_order = context.Header.sections if context.Header.sections is defined else default_order %}
+        {% set default_order = ['performance_profile', 'experience', 'skills', 'education', 'certifications', 'training', 'patents'] %}
+        {% set section_order = context.header.sections if context.header.sections is defined else default_order %}
         {% for section in section_order %}
-            {% if section == 'Performance_profile' %}{{ render_Performance_profile() }}
-            {% elif section == 'Experience' %}{{ render_Experience() }}
-            {% elif section == 'Skills' %}{{ render_Skills() }}
-            {% elif section == 'Education' %}{{ render_Education() }}
-            {% elif section == 'Certifications' %}{{ render_Certifications() }}
-            {% elif section == 'Training' %}{{ render_Training() }}
-            {% elif section == 'Patents' %}{{ render_Patents() }}
+            {% if section == 'performance_profile' %}{{ render_Performance_profile() }}
+            {% elif section == 'experience' %}{{ render_Experience() }}
+            {% elif section == 'skills' %}{{ render_Skills() }}
+            {% elif section == 'education' %}{{ render_Education() }}
+            {% elif section == 'certifications' %}{{ render_Certifications() }}
+            {% elif section == 'training' %}{{ render_Training() }}
+            {% elif section == 'patents' %}{{ render_Patents() }}
             {% elif context[section] is defined %}
             <table>
                 <tr>
-                    <td><h2>{{ section | replace('_', ' ') }}</h2></td>
+                    <td><h2>{{ section | replace('_', ' ') | title }}</h2></td>
                     <td>{{ context[section] | markdown }}</td>
                 </tr>
             </table>
@@ -355,12 +355,12 @@
         {% endfor %}
 
         {# Catch-all: render any sections present in context but not in section_order #}
-        {% set skip = ['Header', 'skills_layout'] %}
+        {% set skip = ['header', 'skills_layout'] %}
         {% for key, value in context.items() %}
         {% if key not in section_order and key not in skip and value is string %}
         <table>
             <tr>
-                <td><h2>{{ key | replace('_', ' ') }}</h2></td>
+                <td><h2>{{ key | replace('_', ' ') | title }}</h2></td>
                 <td>{{ value | markdown }}</td>
             </tr>
         </table>

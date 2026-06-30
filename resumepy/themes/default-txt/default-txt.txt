@@ -1,24 +1,24 @@
-{{ context.Header.name }}
+{{ context.header.name }}
 {% if context.title is sameas true %}
-{{ context.Header.title }}
+{{ context.header.title }}
 {% endif %}
 
-{% for item, value in context.Header['contact info'].items() %}
+{% for item, value in context.header['contact info'].items() %}
 {{ value }}
 {% endfor %}
 
 ------------------------------------------------------------------------
 
-{% if context.Performance_profile is defined %}
+{% if context.performance_profile is defined %}
 PERFORMANCE PROFILE
 ------------------------------------------------------------------------
-{{ context.Performance_profile | wordwrap(72) }}
+{{ context.performance_profile | wordwrap(72) }}
 
 {% endif %}
-{% if context.Experience is defined %}
+{% if context.experience is defined %}
 WORK EXPERIENCE
 ------------------------------------------------------------------------
-{% for company, details in context.Experience.items() %}
+{% for company, details in context.experience.items() %}
 {{ company }}{% if details.location %} -- {{ details.location }}{% endif %}
 
 {% for position, pos_details in details.positions.items() %}
@@ -37,10 +37,10 @@ WORK EXPERIENCE
 
 {% endfor %}
 {% endif %}
-{% if context.Skills is defined %}
+{% if context.skills is defined %}
 SKILLS
 ------------------------------------------------------------------------
-{% for category, skills in context.Skills.items() %}
+{% for category, skills in context.skills.items() %}
 {{ category | upper }}
 {% for skill in skills %}
   - {{ skill }}
@@ -48,10 +48,10 @@ SKILLS
 
 {% endfor %}
 {% endif %}
-{% if context.Education is defined %}
+{% if context.education is defined %}
 EDUCATION
 ------------------------------------------------------------------------
-{% for degree, details in context.Education.items() %}
+{% for degree, details in context.education.items() %}
 {{ degree }}, {{ details.date }}
   {{ details.school }}{% if details.address %} -- {{ details.address }}{% endif %}
 {% if details.gpa is defined %}
@@ -60,19 +60,19 @@ EDUCATION
 
 {% endfor %}
 {% endif %}
-{% if context.Certifications is defined %}
+{% if context.certifications is defined %}
 CERTIFICATIONS
 ------------------------------------------------------------------------
-{% for cert, details in context.Certifications.items() %}
+{% for cert, details in context.certifications.items() %}
 {{ cert }}
   License No: {{ details['license number'] }}{% if details.state is defined %}, {{ details.state }}{% endif %}, Expiration: {{ details.expiration }}
 
 {% endfor %}
 {% endif %}
-{% if context.Training is defined %}
+{% if context.training is defined %}
 TRAINING
 ------------------------------------------------------------------------
-{% for training, details in context.Training.items() %}
+{% for training, details in context.training.items() %}
 {{ training }}
 {% if details.description is defined %}
   {{ details.description | wordwrap(70, wrapstring='\n  ') }}
@@ -80,10 +80,10 @@ TRAINING
 
 {% endfor %}
 {% endif %}
-{% if context.Patents is defined %}
+{% if context.patents is defined %}
 PATENTS
 ------------------------------------------------------------------------
-{% for patent, details in context.Patents.items() %}
+{% for patent, details in context.patents.items() %}
 "{{ patent }}"{% if details['patent number'] is defined %}, No. {{ details['patent number'] }}{% endif %}{% if details.issued is defined %}, Issued: {{ details.issued }}{% endif %}
 
 {% if details.description is defined %}
@@ -92,7 +92,7 @@ PATENTS
 
 {% endfor %}
 {% endif %}
-{% set known = ['Header', 'Performance_profile', 'Experience', 'Skills', 'Education', 'Certifications', 'Training', 'Patents', 'skills_layout'] %}
+{% set known = ['header', 'performance_profile', 'experience', 'skills', 'education', 'certifications', 'training', 'patents', 'skills_layout'] %}
 {% for key, value in context.items() %}
 {% if key not in known and value is string %}
 {{ key | replace('_', ' ') | upper }}

@@ -46,15 +46,15 @@ class Resume:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def _normalize_sections(self):
-        sections = self.context.get('Header', {}).get('sections')
+        sections = self.context.get('header', {}).get('sections')
         if sections:
-            self.context['Header']['sections'] = [
-                s.replace('-', '_').replace(' ', '_') for s in sections
+            self.context['header']['sections'] = [
+                s.replace('-', '_').replace(' ', '_').lower() for s in sections
             ]
 
     def _load_yaml(self, directory):
         for f in sorted(Path(directory).glob('*.yaml')):
-            key = f.stem.replace('-', '_').replace(' ', '_')
+            key = f.stem.replace('-', '_').replace(' ', '_').lower()
             self.context[key] = yaml.safe_load(f.read_text(encoding='utf-8'))
 
     @cached_property

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ context.Header.name }}</title>
+    <title>{{ context.header.name }}</title>
     <style>
         :root {
             --accent:       {{ palette.accent }};
@@ -275,24 +275,24 @@
     <!-- Header -->
     <div class="header">
         <div class="header-top">
-            <h1>{{ context.Header.name }}</h1>
-            {% if context.Header['contact info'].address is defined %}
-            <div class="header-address">{{ context.Header['contact info'].address }}</div>
+            <h1>{{ context.header.name }}</h1>
+            {% if context.header['contact info'].address is defined %}
+            <div class="header-address">{{ context.header['contact info'].address }}</div>
             {% endif %}
         </div>
-        {% if context.Performance_profile is defined %}
-        <p class="summary">{{ context.Performance_profile }}</p>
+        {% if context.performance_profile is defined %}
+        <p class="summary">{{ context.performance_profile }}</p>
         {% endif %}
     </div>
 
     {# ---- Section macros ---- #}
 
     {% macro render_Experience() %}
-    {% if context.Experience is defined %}
+    {% if context.experience is defined %}
     <div class="section">
         <h2>Work Experience</h2>
         <hr class="section-rule">
-        {% for company, details in context.Experience.items() %}
+        {% for company, details in context.experience.items() %}
         <div class="company">
             <div class="company-row">
                 <span class="company-name">{{ company }}</span>
@@ -321,11 +321,11 @@
     {% endmacro %}
 
     {% macro render_Skills() %}
-    {% if context.Skills is defined %}
+    {% if context.skills is defined %}
     <div class="section">
         <h2>Skills</h2>
         <hr class="section-rule">
-        {% for category, skills in context.Skills.items() %}
+        {% for category, skills in context.skills.items() %}
         <div class="skill-row">
             <span class="skill-label">{{ category | title }}:</span>
             {% for skill in skills %}
@@ -338,11 +338,11 @@
     {% endmacro %}
 
     {% macro render_Education() %}
-    {% if context.Education is defined %}
+    {% if context.education is defined %}
     <div class="section">
         <h2>Education</h2>
         <hr class="section-rule">
-        {% for degree, details in context.Education.items() %}
+        {% for degree, details in context.education.items() %}
         <div class="edu-entry">
             <div class="edu-row">
                 <span><strong>{{ degree }}</strong> &mdash; {{ details.school }}{% if details.address %}, <span class="degree-location">{{ details.address }}</span>{% endif %}</span>
@@ -355,11 +355,11 @@
     {% endmacro %}
 
     {% macro render_Certifications() %}
-    {% if context.Certifications is defined %}
+    {% if context.certifications is defined %}
     <div class="section">
         <h2>Certifications</h2>
         <hr class="section-rule">
-        {% for cert, details in context.Certifications.items() %}
+        {% for cert, details in context.certifications.items() %}
         <div class="extra-entry">
             <div class="edu-row">
                 <span><span class="extra-title">{{ cert }}</span>{% if details['license number'] is defined %} &mdash; License No. {{ details['license number'] }}{% if details.state is defined %}, {{ details.state }}{% endif %}{% endif %}</span>
@@ -372,11 +372,11 @@
     {% endmacro %}
 
     {% macro render_Training() %}
-    {% if context.Training is defined %}
+    {% if context.training is defined %}
     <div class="section">
         <h2>Training</h2>
         <hr class="section-rule">
-        {% for title, details in context.Training.items() %}
+        {% for title, details in context.training.items() %}
         <div class="extra-entry">
             <span class="extra-title">{{ title }}</span>
             {% if details.description is defined %}
@@ -389,11 +389,11 @@
     {% endmacro %}
 
     {% macro render_Patents() %}
-    {% if context.Patents is defined %}
+    {% if context.patents is defined %}
     <div class="section">
         <h2>Patents</h2>
         <hr class="section-rule">
-        {% for patent, details in context.Patents.items() %}
+        {% for patent, details in context.patents.items() %}
         <div class="company">
             <div class="company-row">
                 <span><span class="company-name">{{ patent }}</span>{% if details['patent number'] is defined %} &mdash; No. {{ details['patent number'] }}{% endif %}</span>
@@ -410,18 +410,18 @@
 
     {# ---- Render sections in order ---- #}
 
-    {% set default_order = ['Experience', 'Skills', 'Education', 'Certifications', 'Training', 'Patents'] %}
-    {% set section_order = context.Header.sections if context.Header.sections is defined else default_order %}
+    {% set default_order = ['experience', 'skills', 'education', 'certifications', 'training', 'patents'] %}
+    {% set section_order = context.header.sections if context.header.sections is defined else default_order %}
     {% for section in section_order %}
-        {% if section == 'Experience' %}{{ render_Experience() }}
-        {% elif section == 'Skills' %}{{ render_Skills() }}
-        {% elif section == 'Education' %}{{ render_Education() }}
-        {% elif section == 'Certifications' %}{{ render_Certifications() }}
-        {% elif section == 'Training' %}{{ render_Training() }}
-        {% elif section == 'Patents' %}{{ render_Patents() }}
+        {% if section == 'experience' %}{{ render_Experience() }}
+        {% elif section == 'skills' %}{{ render_Skills() }}
+        {% elif section == 'education' %}{{ render_Education() }}
+        {% elif section == 'certifications' %}{{ render_Certifications() }}
+        {% elif section == 'training' %}{{ render_Training() }}
+        {% elif section == 'patents' %}{{ render_Patents() }}
         {% elif context[section] is defined %}
         <div class="section">
-            <h2>{{ section | replace('_', ' ') }}</h2>
+            <h2>{{ section | replace('_', ' ') | title }}</h2>
             <hr class="section-rule">
             <div class="extra-detail">{{ context[section] | markdown }}</div>
         </div>
@@ -429,11 +429,11 @@
     {% endfor %}
 
     {# Catch-all: render any sections present in context but not in section_order #}
-    {% set skip = ['Header', 'Performance_profile', 'skills_layout'] %}
+    {% set skip = ['header', 'performance_profile', 'skills_layout'] %}
     {% for key, value in context.items() %}
     {% if key not in section_order and key not in skip and value is string %}
     <div class="section">
-        <h2>{{ key | replace('_', ' ') }}</h2>
+        <h2>{{ key | replace('_', ' ') | title }}</h2>
         <hr class="section-rule">
         <div class="extra-detail">{{ value | markdown }}</div>
     </div>
@@ -442,7 +442,7 @@
 
     <!-- Footer -->
     <div class="footer">
-        {% for item, value in context.Header['contact info'].items() %}
+        {% for item, value in context.header['contact info'].items() %}
         {% if item != 'address' %}
         <span>{{ item | title }}: <strong>{{ value }}</strong></span>
         {% endif %}
