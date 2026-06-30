@@ -235,13 +235,17 @@
         /* ---------- Print ---------- */
 
         @media print {
-            /* Zero the browser page margins so the print dialog's
-               None / Default / Custom setting doesn't interfere.
-               All spacing is controlled by .page padding below. */
-            @page { margin: 0; }
+            /* @page margin applies to every page including page 2+.
+               The .page div padding handles screen; @page handles print. */
+            @page { margin: 0.4in 0.55in; }
 
             .page {
-                padding: 0.4in 0.55in;
+                padding: 0;
+            }
+
+            /* Keep whole sections together if they fit on a page */
+            .section {
+                break-inside: avoid;
             }
 
             /* Keep each entry on one page if possible */
