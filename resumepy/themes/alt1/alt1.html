@@ -308,8 +308,8 @@
                 <td><h2 id="training">Training</h2></td>
                 <td>
                     {% for training, details in context.training.items() %}
-                    <p class="bold">{{ training }}</p>
-                    <p>{{ details.description }}</p>
+                    <p><span class="bold">{{ training }}</span>{% if details.date %} &mdash; {{ details.date }}{% endif %}</p>
+                    {% if details.description is defined %}<p>{{ details.description }}</p>{% endif %}
                     {% endfor %}
                 </td>
             </tr>

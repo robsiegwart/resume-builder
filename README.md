@@ -300,6 +300,7 @@ sections :           # optional — controls section order and visibility
 ```yaml
 <title> :
   description : <description>
+  date        : <date>
 
 (repeat)
 ```

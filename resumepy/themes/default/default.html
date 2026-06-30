@@ -378,7 +378,10 @@
         <hr class="section-rule">
         {% for title, details in context.training.items() %}
         <div class="extra-entry">
-            <span class="extra-title">{{ title }}</span>
+            <div class="edu-row">
+                <span class="extra-title">{{ title }}</span>
+                {% if details.date %}<span class="dates">{{ details.date }}</span>{% endif %}
+            </div>
             {% if details.description is defined %}
             <div class="extra-detail">{{ details.description }}</div>
             {% endif %}
