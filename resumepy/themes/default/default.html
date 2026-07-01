@@ -235,9 +235,9 @@
         /* ---------- Print ---------- */
 
         @media print {
-            /* @page margin applies to every page including page 2+.
-               The .page div padding handles screen; @page handles print. */
-            @page { margin: 0.4in 0.55in; }
+            /* Page 1 keeps the original margin; pages 2+ get extra top space for the stamped name. */
+            @page         { margin: 0.65in 0.55in 0.4in; }
+            @page :first  { margin: 0.4in  0.55in; }
 
             .page {
                 padding: 0;
