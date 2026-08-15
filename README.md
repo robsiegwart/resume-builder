@@ -9,16 +9,39 @@ containing only the files that differ; everything else falls back to the base fo
 
 ## Installation
 
-With [uv](https://docs.astral.sh/uv/):
+Requires Python 3.10+. Two options, depending on what you have installed:
+
+**With [uv](https://docs.astral.sh/uv/)** (recommended — installs resumepy into
+its own isolated environment and puts a `resumepy` command on your `PATH`,
+so it works from any directory without activating a venv):
 
 ```
 uv tool install .
 ```
 
-Or with pip:
+If you edit resumepy's source and want the installed command to pick up the
+changes, reinstall from the local checkout:
+
+```
+uv tool install . --reinstall
+```
+
+Other useful commands: `uv tool list` (show installed tools), `uv tool
+uninstall resumepy` (remove it).
+
+**With pip:**
 
 ```
 pip install .
+```
+
+This installs into whatever Python environment is currently active (system
+Python or an activated venv) rather than an isolated one. For the pip
+equivalent of `uv tool install` — an isolated environment plus a global
+command — use [pipx](https://pipx.pypa.io/) instead:
+
+```
+pipx install .
 ```
 
 ## Quickstart
