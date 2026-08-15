@@ -17,7 +17,7 @@ def cli():
 
 @cli.command(help='Generate HTML and text versions of a resume and save them in a directory.')
 @click.argument('source_dir')
-@click.option('--variant', default=None, help='Subfolder of SOURCE_DIR containing override YAML files.')
+@click.option('--variant', default=None, help='Path to a folder of override YAML files, loaded on top of SOURCE_DIR.')
 @click.option('--name', default=None, help='Output filename base. Defaults to the source folder name.')
 @click.option('--theme', default='default', help='Bundled theme name or path to a custom HTML template. Default: default.')
 @click.option('--output', default='dist', help='Output directory. Default: dist.')
@@ -27,9 +27,8 @@ def build(source_dir, variant, name, theme, output, palette, pdf):
     source_path = Path(source_dir)
     if not source_path.is_dir():
         raise click.BadParameter(f'"{source_dir}" is not a valid directory.', param_hint='SOURCE_DIR')
-    if variant and not (source_path / variant).is_dir():
-        location = 'the current directory' if source_path == Path('.') else f'"{source_dir}"'
-        raise click.BadParameter(f'Variant "{variant}" not found in {location}.', param_hint='--variant')
+    if variant and not Path(variant).is_dir():
+        raise click.BadParameter(f'Variant folder "{variant}" not found.', param_hint='--variant')
     theme_path = Path(theme)
     if not theme_path.is_file() and not (THEMES_DIR / theme).is_dir():
         raise click.BadParameter(f'"{theme}" is not a built-in theme or a valid template file path.', param_hint='--theme')

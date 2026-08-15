@@ -17,7 +17,7 @@ pytest
 pytest tests/test_cli.py::test_build_produces_html_by_default
 
 # Run the CLI
-resumepy build <source_dir> [--variant <name>] [--theme <name>] [--palette red|nord|grayscale] [--output <dir>] [--name <base>] [--pdf]
+resumepy build <source_dir> [--variant <path>] [--theme <name>] [--palette red|nord|grayscale] [--output <dir>] [--name <base>] [--pdf]
 resumepy init [<folder-name>]
 ```
 
@@ -28,7 +28,7 @@ The project is a small CLI tool (`resumepy` entry point → `resumepy.cli:cli`) 
 **Data flow:**
 
 1. `cli.py` — Click CLI; validates args, constructs `Resume`, calls `publish()` / `publish_pdf()`
-2. `resume.py` — `Resume` class: loads YAML files from `source_dir` (then overlays `variant` subfolder if given), normalises keys to `snake_case`, renders through Jinja2, writes output
+2. `resume.py` — `Resume` class: loads YAML files from `source_dir` (then overlays the `variant` folder if given — `variant` is a path, independent of `source_dir`, not a subfolder name), normalises keys to `snake_case`, renders through Jinja2, writes output
 3. `palettes.py` — dict of CSS color palettes passed into the template as `palette`
 4. `quickstart.py` — copies bundled `sample-data/` YAML files to a new folder for `resumepy init`
 

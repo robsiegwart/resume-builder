@@ -114,8 +114,8 @@ def test_build_output_contains_name(scaffolded, runner):
 
 
 def test_build_variant_merges_over_base(scaffolded, runner):
-    """A variant subfolder overrides only the YAML files it contains."""
-    variant = scaffolded / 'my-resume' / 'senior-role'
+    """A variant folder overrides only the YAML files it contains."""
+    variant = scaffolded / 'senior-role'
     variant.mkdir()
     (variant / 'Header.yaml').write_text(
         'name: Jane Smith\n'
@@ -126,8 +126,8 @@ def test_build_variant_merges_over_base(scaffolded, runner):
         '  email: jane@example.com\n'
         '  web: janesmith.com\n'
     )
-    result = runner.invoke(cli, ['build', 'my-resume', '--variant', 'senior-role'])
+    result = runner.invoke(cli, ['build', 'my-resume', '--variant', str(variant)])
     assert result.exit_code == 0
-    html = (scaffolded / 'dist' / 'my-resume.html').read_text()
+    html = (scaffolded / 'dist' / 'my-resume-senior-role.html').read_text()
     assert 'Jane Smith' in html
     assert 'Margaret Thornton' not in html

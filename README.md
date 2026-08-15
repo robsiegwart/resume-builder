@@ -77,7 +77,9 @@ my-resume/                  ← your YAML source folder
   Education.yaml
   Skills.yaml
   Performance profile.yaml
-  coding/                   ← variant subfolder (only files that differ)
+
+variants/
+  coding/                   ← variant folder (only files that differ)
     Header.yaml
     Experience.yaml
 
@@ -107,8 +109,8 @@ Usage: resumepy build [OPTIONS] SOURCE_DIR
   current directory.
 
 Options:
-  --variant TEXT                    Subfolder of SOURCE_DIR containing
-                                    override YAML files.
+  --variant TEXT                    Path to a folder of override YAML files,
+                                    loaded on top of SOURCE_DIR.
   --theme TEXT                      Bundled theme name or path to a custom
                                     template file. Default: default.
   --palette [red|nord|grayscale]    Color palette. Default: red.
@@ -132,24 +134,28 @@ Usage: resumepy init [NAME]
 
 ### Variants
 
-A variant is a subfolder within your source folder containing only the YAML
-files that differ from the base. When a variant is specified, its files are
-loaded on top of the base, overriding any sections with the same name.
+A variant is a folder containing only the YAML files that differ from the
+base — it can live anywhere, not just inside your source folder. When a
+variant is specified, its files are loaded on top of the base, overriding
+any sections with the same name.
 
 ```
 my-resume/
   Header.yaml           ← base
   Experience.yaml       ← base
+
+variants/
   coding/
     Header.yaml         ← overrides base Header.yaml
     Experience.yaml     ← overrides base Experience.yaml
 ```
 
 ```
-resumepy build my-resume/ --variant coding
+resumepy build my-resume/ --variant variants/coding
 ```
 
-The variant name is automatically appended to the output filename:
+The variant folder's own name is automatically appended to the output
+filename:
 
 ```
 dist/my-resume-coding.html

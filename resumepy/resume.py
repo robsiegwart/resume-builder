@@ -21,7 +21,7 @@ class Resume:
     A resume document.
 
     :param source_dir:  Path to the folder containing base YAML files.
-    :param variant:     Name of a subfolder within source_dir with override YAML files.
+    :param variant:     Path to a folder of override YAML files, loaded on top of source_dir.
     :param theme:       Bundled theme name or path to a custom template file.
     :param output_dir:  Directory to write the output file. Default: 'dist'.
     :param name:        Output filename base. Defaults to the source folder name.
@@ -33,14 +33,14 @@ class Resume:
         self.output_dir = Path(output_dir)
         self.palette = PALETTES[palette]
         base = name or self.source_dir.resolve().name
-        self.name = f'{base}-{variant}' if (variant and not name) else base
+        self.name = f'{base}-{Path(variant).name}' if (variant and not name) else base
 
         click.echo(f' ResumePy v{_pkg_version("resumepy")} '.center(80, '='))
 
         self.context = {}
         self._load_yaml(self.source_dir)
         if variant:
-            self._load_yaml(self.source_dir / variant)
+            self._load_yaml(Path(variant))
         self._normalize_sections()
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
