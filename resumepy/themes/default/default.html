@@ -420,7 +420,8 @@
     {% set default_order = ['experience', 'skills', 'education', 'certifications', 'training', 'patents'] %}
     {% set section_order = context.header.sections if context.header.sections is defined else default_order %}
     {% for section in section_order %}
-        {% if section == 'experience' %}{{ render_Experience() }}
+        {% if section == 'performance_profile' %}{# already rendered in header #}
+        {% elif section == 'experience' %}{{ render_Experience() }}
         {% elif section == 'skills' %}{{ render_Skills() }}
         {% elif section == 'education' %}{{ render_Education() }}
         {% elif section == 'certifications' %}{{ render_Certifications() }}
