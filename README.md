@@ -92,6 +92,8 @@ Options:
   --output TEXT                     Output directory. Default: dist.
   --name TEXT                       Output filename base. Defaults to the
                                     source folder name.
+  --pdf                             Also export a PDF via headless Chromium
+                                    (HTML themes only).
   --help                            Show this message and exit.
 ```
 
@@ -167,6 +169,26 @@ The HTML themes support named color palettes applied via CSS custom properties.
 ```
 resumepy build my-resume/ --theme alt1 --palette nord
 ```
+
+### PDF export
+
+Pass `--pdf` to also export a PDF alongside the HTML output, rendered via
+headless Chromium (Playwright):
+
+```
+resumepy build my-resume/ --pdf
+```
+
+This produces `dist/my-resume.pdf` next to `dist/my-resume.html`. Only HTML
+themes support PDF export. Before first use, install the Chromium browser
+Playwright drives:
+
+```
+playwright install chromium
+```
+
+For resumes that span multiple pages, the person's name is automatically
+stamped into the top margin of page 2 onward.
 
 ### Section ordering
 
@@ -328,3 +350,5 @@ The file content should be a plain string or a Markdown block scalar (see
 - [PyYAML](https://pyyaml.org/)
 - [click](https://click.palletsprojects.com/)
 - [mistune](https://mistune.lepture.com/)
+- [Playwright](https://playwright.dev/python/) — PDF export (`--pdf`); requires `playwright install chromium`
+- [PyMuPDF](https://pymupdf.readthedocs.io/) — stamps the name header on page 2+ of exported PDFs
