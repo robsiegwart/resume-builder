@@ -108,21 +108,21 @@ class Resume:
         click.echo(f'PDF saved to "{pdf_path}"')
 
     def _stamp_continuation_header(self, pdf_path: Path):
-        import fitz  # pymupdf
+        import pymupdf
         name = self.context.get('header', {}).get('name', '')
         if not name:
             return
-        doc = fitz.open(str(pdf_path))
+        doc = pymupdf.open(str(pdf_path))
         if doc.page_count <= 1:
             doc.close()
             return
         for pg in doc.pages(1):  # pages 2+ (0-indexed)
             rect = pg.rect
             # Top margin is ~47pt (0.65in) on pages 2+; stamp name centered in it
-            textbox = fitz.Rect(rect.x0 + 40, 16, rect.x1 - 40, 38)
+            textbox = pymupdf.Rect(rect.x0 + 40, 16, rect.x1 - 40, 38)
             segoeui = Path("C:/Windows/Fonts/segoeui.ttf")
             font_kwargs = {"fontfile": str(segoeui)} if segoeui.exists() else {"fontname": "helv"}
-            pg.insert_textbox(textbox, name, fontsize=9, align=fitz.TEXT_ALIGN_LEFT, **font_kwargs)
+            pg.insert_textbox(textbox, name, fontsize=9, align=pymupdf.TEXT_ALIGN_LEFT, **font_kwargs)
         data = doc.tobytes(garbage=4, deflate=True)
         doc.close()
         pdf_path.write_bytes(data)
