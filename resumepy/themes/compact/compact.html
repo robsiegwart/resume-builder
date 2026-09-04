@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ context.header.name }}</title>
+    <style>
+        :root {
+            --accent:       {{ palette.accent }};
+            --accent-dark:  {{ palette.accent_dark }};
+            --accent-light: {{ palette.accent_light }};
+            --shade:        {{ palette.shade }};
+            --shade-border: {{ palette.shade_border }};
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            font-size: 13px;
+            line-height: 1.15;
+            color: #333;
+        }
+
+        .page {
+            padding: 36px 44px 0;
+        }
+
+        /* ---------- Header ---------- */
+
+        .header { margin-bottom: 12px; }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 4px;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #111;
+            line-height: 1.15;
+            margin-bottom: 4px;
+        }
+
+        .header .summary {
+            font-size: 0.9em;
+            color: #444;
+            line-height: 1.4;
+            margin-top: 0;
+        }
+
+        .header-address {
+            text-align: right;
+            font-size: 0.85em;
+            color: #555;
+            line-height: 1.4;
+            white-space: pre-line;
+            padding-left: 24px;
+        }
+
+        /* ---------- Sections ---------- */
+
+        .section { margin-bottom: 13px; }
+
+        .section h2 {
+            font-size: 1.05em;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 3px;
+        }
+
+        .section-rule {
+            border: none;
+            border-top: 2px solid var(--accent);
+            margin-bottom: 6px;
+        }
+
+        /* ---------- Experience ---------- */
+
+        .company { margin-bottom: 10px; }
+
+        .company-row,
+        .position-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .company-row { margin-bottom: 1px; }
+        .position-row { margin-bottom: 2px; }
+
+        .company-name {
+            font-weight: 700;
+            font-size: 1.05em;
+        }
+
+        .position-title {
+            font-weight: 700;
+            font-size: 0.88em;
+            color: var(--accent);
+        }
+
+        .location {
+            font-size: 0.88em;
+            color: #555;
+        }
+
+        .dates {
+            font-size: 0.83em;
+            color: #777;
+            font-style: italic;
+            white-space: nowrap;
+            margin-left: 16px;
+        }
+
+        .achievements,
+        .extra-detail ul {
+            list-style: none;
+            margin-top: 3px;
+        }
+
+        .achievements li {
+            position: relative;
+            padding-left: 13px;
+            font-size: 0.88em;
+            color: #444;
+            margin-bottom: 2px;
+            line-height: 1.4;
+        }
+
+        .extra-detail ul li {
+            position: relative;
+            padding-left: 13px;
+            color: #444;
+            margin-bottom: 2px;
+            line-height: 1.4;
+        }
+
+        .achievements li::before,
+        .extra-detail ul li::before {
+            content: '-';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .exp-summary {
+            font-size: 0.88em;
+            color: #444;
+            margin-top: 3px;
+            line-height: 1.4;
+        }
+
+        /* ---------- Skills ---------- */
+
+        .skill-row {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            column-gap: 6px;
+            margin-bottom: 4px;
+            font-size: 0.88em;
+            line-height: 1.4;
+        }
+
+        .skill-label {
+            font-weight: 700;
+            color: #333;
+            white-space: nowrap;
+        }
+
+        .skill-list {
+            color: #444;
+        }
+
+        /* ---------- Education ---------- */
+
+        .edu-entry { margin-bottom: 7px; }
+
+        .edu-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .school-name {
+            font-size: 1.05em;
+            font-weight: 700;
+        }
+
+        .degree-detail {
+            font-size: 0.88em;
+            margin-top: 1px;
+        }
+
+        .degree-location {
+            color: #666;
+            font-style: italic;
+        }
+
+        /* ---------- Additional sections ---------- */
+
+        .extra-entry { margin-bottom: 5px; }
+
+        .extra-title { font-weight: 700; }
+
+        .extra-detail {
+            font-size: 0.88em;
+            color: #555;
+            margin-top: 1px;
+        }
+
+        /* ---------- Footer ---------- */
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            background: var(--shade);
+            border-top: 1px solid var(--shade-border);
+            margin: 18px -44px 0;
+            padding: 10px 44px;
+            font-size: 0.83em;
+            color: #666;
+        }
+
+        .footer strong { color: #333; }
+
+        /* ---------- Print ---------- */
+
+        @media print {
+            /* Page 1 keeps the original margin; pages 2+ get extra top space for the stamped name. */
+            @page         { margin: 0.55in 0.5in 0.25in; }
+            @page :first  { margin-top: 0.35in; margin-left: 0.5in; margin-right: 0.5in; margin-bottom: 0.25in; }
+
+            .page {
+                padding: 0;
+            }
+
+            /* Keep whole sections together if they fit on a page */
+            .section {
+                break-inside: avoid;
+            }
+
+            /* Keep each entry on one page if possible */
+            .company,
+            .edu-entry,
+            .extra-entry,
+            .skill-row {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            /* Never break immediately after a section heading */
+            .section h2,
+            .section-rule {
+                page-break-after: avoid;
+                break-after: avoid;
+            }
+
+            /* Reset footer — drop the screen bleed effect */
+            .footer {
+                margin: 4px 0 0;
+                padding: 3px 0 0;
+                background: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-top">
+            <h1>{{ context.header.name }}</h1>
+            {% if context.header['contact info'].address is defined %}
+            <div class="header-address">{{ context.header['contact info'].address }}</div>
+            {% endif %}
+        </div>
+        {% if context.performance_profile is defined %}
+        <p class="summary">{{ context.performance_profile }}</p>
+        {% endif %}
+    </div>
+
+    {# ---- Section macros ---- #}
+
+    {% macro render_Experience() %}
+    {% if context.experience is defined %}
+    <div class="section">
+        <h2>Work Experience</h2>
+        <hr class="section-rule">
+        {% for company, details in context.experience.items() %}
+        <div class="company">
+            <div class="company-row">
+                <span class="company-name">{{ company }}</span>
+                {% if details.location %}<span class="location">{{ details.location }}</span>{% endif %}
+            </div>
+            {% for position, pos in details.positions.items() %}
+            <div class="position-row">
+                <span class="position-title">{{ position }}</span>
+                <span class="dates">{{ pos.dates }}</span>
+            </div>
+            {% endfor %}
+            {% if details.summary is defined %}
+            <p class="exp-summary">{{ details.summary }}</p>
+            {% endif %}
+            {% if details['selected achievements'] is defined %}
+            <ul class="achievements">
+                {% for item in details['selected achievements'] %}
+                <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endmacro %}
+
+    {% macro render_Skills() %}
+    {% if context.skills is defined %}
+    <div class="section">
+        <h2>Skills</h2>
+        <hr class="section-rule">
+        {% for category, skills in context.skills.items() %}
+        <div class="skill-row">
+            <span class="skill-label">{{ category | title }}:</span>
+            <span class="skill-list">{{ skills | join(', ') }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endmacro %}
+
+    {% macro render_Education() %}
+    {% if context.education is defined %}
+    <div class="section">
+        <h2>Education</h2>
+        <hr class="section-rule">
+        {% for degree, details in context.education.items() %}
+        <div class="edu-entry">
+            <div class="edu-row">
+                <span><strong>{{ degree }}</strong> &mdash; {{ details.school }}{% if details.address %}, <span class="degree-location">{{ details.address }}</span>{% endif %}</span>
+                <span class="dates">{{ details.date }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endmacro %}
+
+    {% macro render_Certifications() %}
+    {% if context.certifications is defined %}
+    <div class="section">
+        <h2>Certifications</h2>
+        <hr class="section-rule">
+        {% for cert, details in context.certifications.items() %}
+        <div class="extra-entry">
+            <div class="edu-row">
+                <span><span class="extra-title">{{ cert }}</span>{% if details['license number'] is defined %} &mdash; License No. {{ details['license number'] }}{% if details.state is defined %}, {{ details.state }}{% endif %}{% endif %}</span>
+                {% if details.expiration is defined %}<span class="dates">Exp. {{ details.expiration }}</span>{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endmacro %}
+
+    {% macro render_Training() %}
+    {% if context.training is defined %}
+    <div class="section">
+        <h2>Training</h2>
+        <hr class="section-rule">
+        {% for title, details in context.training.items() %}
+        <div class="extra-entry">
+            <div class="edu-row">
+                <span class="extra-title">{{ title }}</span>
+                {% if details.date %}<span class="dates">{{ details.date }}</span>{% endif %}
+            </div>
+            {% if details.description is defined %}
+            <div class="extra-detail">{{ details.description }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endmacro %}
+
+    {% macro render_Patents() %}
+    {% if context.patents is defined %}
+    <div class="section">
+        <h2>Patents</h2>
+        <hr class="section-rule">
+        {% for patent, details in context.patents.items() %}
+        <div class="company">
+            <div class="company-row">
+                <span><span class="company-name">{{ patent }}</span>{% if details['patent number'] is defined %} &mdash; No. {{ details['patent number'] }}{% endif %}</span>
+                {% if details.issued is defined %}<span class="dates">Issued {{ details.issued }}</span>{% endif %}
+            </div>
+            {% if details.description is defined %}
+            <ul class="achievements"><li>{{ details.description }}</li></ul>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endmacro %}
+
+    {# ---- Render sections in order ---- #}
+
+    {% set default_order = ['experience', 'skills', 'education', 'certifications', 'training', 'patents'] %}
+    {% set section_order = context.header.sections if context.header.sections is defined else default_order %}
+    {% for section in section_order %}
+        {% if section == 'performance_profile' %}{# already rendered in header #}
+        {% elif section == 'experience' %}{{ render_Experience() }}
+        {% elif section == 'skills' %}{{ render_Skills() }}
+        {% elif section == 'education' %}{{ render_Education() }}
+        {% elif section == 'certifications' %}{{ render_Certifications() }}
+        {% elif section == 'training' %}{{ render_Training() }}
+        {% elif section == 'patents' %}{{ render_Patents() }}
+        {% elif context[section] is defined %}
+        <div class="section">
+            <h2>{{ section | replace('_', ' ') | title }}</h2>
+            <hr class="section-rule">
+            <div class="extra-detail">{{ context[section] | markdown }}</div>
+        </div>
+        {% endif %}
+    {% endfor %}
+
+    {# Catch-all: render any sections present in context but not in section_order #}
+    {% set skip = ['header', 'performance_profile', 'skills_layout'] %}
+    {% for key, value in context.items() %}
+    {% if key not in section_order and key not in skip and value is string %}
+    <div class="section">
+        <h2>{{ key | replace('_', ' ') | title }}</h2>
+        <hr class="section-rule">
+        <div class="extra-detail">{{ value | markdown }}</div>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    <!-- Footer -->
+    <div class="footer">
+        {% for item, value in context.header['contact info'].items() %}
+        {% if item != 'address' %}
+        <span>{{ item | title }}: <strong>{{ value }}</strong></span>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+</div>
+</body>
+</html>
