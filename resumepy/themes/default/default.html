@@ -331,7 +331,7 @@
         <hr class="section-rule">
         {% for category, skills in context.skills.items() %}
         <div class="skill-row">
-            <span class="skill-label">{{ category | title }}:</span>
+            <span class="skill-label">{{ category.title() }}:</span>
             {% for skill in skills %}
             <span class="skill-tag">{{ skill }}</span>
             {% endfor %}
